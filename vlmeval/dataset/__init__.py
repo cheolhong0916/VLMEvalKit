@@ -64,6 +64,9 @@ from .GUI.screenspot_v2 import ScreenSpotV2
 from .GUI.screenspot_pro import ScreenSpot_Pro
 from .mmifeval import MMIFEval
 
+## added
+from .robospatial import RoboSpatial
+from .erqa import ERQA
 
 class ConcatDataset(ImageBaseDataset):
     # This dataset takes multiple dataset names as input and aggregate them into a single dataset.
@@ -165,6 +168,9 @@ IMAGE_DATASET = [
     ScreenSpotV2, MMIFEval, Spatial457, VisuLogic, CVBench, PathVQA_VAL,
     PathVQA_TEST, TDBench, TDBenchGrounding, MicroBench, CharXiv, OmniMedVQA,
     WildDocBenchmark, MSEarthMCQ, OCR_Reasoning, PhyX, VLMBlind, CountBenchQA,
+
+    ## added
+    RoboSpatial, ERQA,
 ]
 
 
