@@ -2382,6 +2382,45 @@ class OCR_Reasoning(ImageBaseDataset):
         return msgs
 
 
+class SAT(ImageBaseDataset):
+    TYPE = 'VQA'
+    DATASET_URL = {'SAT': ''}
+    
+    def load_data(self, dataset):
+        import io
+        import pandas as pd
+        from datasets import load_dataset
+        
+        sat_dataset = load_dataset("array/SAT", 
+                               data_files={
+                                    "train": "SAT_train.parquet",
+                                    "validation": "SAT_val.parquet",
+                                    "test": "SAT_test.parquet"
+                                }, 
+                               batch_size=128)
+        df = sat_dataset['test'].to_pandas()[:10]
+        df.reset_index(drop=True, inplace=True)
+        df['index'] = df.index
+        
+        df["image"] = [encode_image_to_base64(Image.open(io.BytesIO(image_dict[0]['bytes']))) for image_dict in df['image_bytes']] # this is a list of images. Some questions are on one image, and some on 2 images
+        
+        df = df[['index', 'image', 'question', 'question_type', 'answers', 'correct_answer']]
+        
+        print(df.head())
+        print(df.shape)
+        return df
+    
+    def build_prompt(self, line):
+        msgs = super().build_prompt(line)
+        answers = line['answers']
+        answers_prompt = ", ".join(answers[:-1]) + " or " + answers[-1]
+        for item in msgs:
+            if item['type'] == 'text':
+                question = item['value']
+                item['value'] = f"{question} Choose between the following options: {answers_prompt}"
+        return msgs
+
+
 class PhyX(ImageBaseDataset):
     TYPE = 'VQA'
 
