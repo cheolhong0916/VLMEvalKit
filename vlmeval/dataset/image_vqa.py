@@ -2413,12 +2413,27 @@ class SAT(ImageBaseDataset):
     def build_prompt(self, line):
         msgs = super().build_prompt(line)
         answers = line['answers']
-        answers_prompt = ", ".join(answers[:-1]) + " or " + answers[-1]
+        answers_prompt = ", ".join(answers[:-1]) + ", or " + answers[-1]
         for item in msgs:
             if item['type'] == 'text':
                 question = item['value']
                 item['value'] = f"{question} Choose between the following options: {answers_prompt}"
         return msgs
+    
+    def evaluate(self, eval_file, **judge_kwargs):
+        data = load(eval_file).sort_values(by='index')
+        predictions = [str(x) for x in data['prediction']]
+        correct_answer = [str(x) for x in data['correct_answer']]
+        correct_count = 0
+        total_count = len(predictions)
+        print(predictions, correct_answer)
+
+        for pred, ans in zip(predictions, correct_answer):
+            if ans in pred:
+                correct_count += 1
+        accuracy = correct_count / total_count if total_count > 0 else 0
+        return {'accuracy': accuracy}
+
 
 
 class PhyX(ImageBaseDataset):
