@@ -2398,7 +2398,7 @@ class SAT(ImageBaseDataset):
                                     "test": "SAT_test.parquet"
                                 }, 
                                batch_size=128)
-        df = sat_dataset['test'].to_pandas()[:10]
+        df = sat_dataset['test'].to_pandas()
         df.reset_index(drop=True, inplace=True)
         df['index'] = df.index
         
@@ -2424,12 +2424,13 @@ class SAT(ImageBaseDataset):
         data = load(eval_file).sort_values(by='index')
         predictions = [str(x) for x in data['prediction']]
         correct_answer = [str(x) for x in data['correct_answer']]
+        answers = [eval(x.replace("\\n", ", ").replace("' '", "', '")) for x in data['answers']]
         correct_count = 0
         total_count = len(predictions)
-        print(predictions, correct_answer)
+        print(predictions, correct_answer, answers)
 
-        for pred, ans in zip(predictions, correct_answer):
-            if ans in pred:
+        for i, (pred, ans) in enumerate(zip(predictions, correct_answer)):
+            if ans in pred and not (answers[i][0] in pred and answers[i][1] in pred):
                 correct_count += 1
         accuracy = correct_count / total_count if total_count > 0 else 0
         return {'accuracy': accuracy}
