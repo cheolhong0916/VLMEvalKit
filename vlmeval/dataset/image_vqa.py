@@ -2406,8 +2406,6 @@ class SAT(ImageBaseDataset):
         
         df = df[['index', 'image', 'question', 'question_type', 'answers', 'correct_answer']]
         
-        # print(df.head())
-        # print(df.shape)
         return df
     
     def build_prompt(self, line):
@@ -2424,16 +2422,28 @@ class SAT(ImageBaseDataset):
         data = load(eval_file).sort_values(by='index')
         predictions = [str(x) for x in data['prediction']]
         correct_answer = [str(x) for x in data['correct_answer']]
+        question_types = [str(x) for x in data['question_type']]
         answers = [eval(x.replace("\\n", ", ").replace("' '", "', '")) for x in data['answers']]
         correct_count = 0
         total_count = len(predictions)
-        print(predictions, correct_answer, answers)
+        task_total_count = {}
+        task_list = ['ego_movement', 'obj_movement', 'action_conseq', 'goal_aim', 'perspective']
+        
+        for k in task_list:
+            task_total_count[k] = question_types.count(k)
+        
+        assert len(question_types) == sum(task_total_count.values())
 
-        for i, (pred, ans) in enumerate(zip(predictions, correct_answer)):
+        task_correct_count = { 'ego_movement': 0, 'obj_movement': 0, 'action_conseq': 0, 'goal_aim': 0, 'perspective': 0 }
+        
+        for i, (pred, ans, qt) in enumerate(zip(predictions, correct_answer, question_types)):
             if ans in pred and not (answers[i][0] in pred and answers[i][1] in pred):
                 correct_count += 1
+                task_correct_count[qt] += 1
         accuracy = correct_count / total_count if total_count > 0 else 0
-        return {'accuracy': accuracy}
+        for k in task_list:
+            task_correct_count[k] /= task_total_count[k]
+        return {'accuracy': accuracy, **task_correct_count}
 
 
 
