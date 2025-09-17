@@ -9,6 +9,7 @@ from ...dataset import DATASET_TYPE, DATASET_MODALITY
 import copy
 import requests
 
+from peft import PeftModel
 
 class LLaVA(BaseModel):
 
@@ -226,7 +227,7 @@ class LLaVA(BaseModel):
         ].strip()
         return output
 
-
+# Original
 class LLaVA_Next(BaseModel):
 
     INSTALL_REQ = False
@@ -282,6 +283,190 @@ class LLaVA_Next(BaseModel):
                 model = LlavaNextForConditionalGeneration.from_pretrained(
                     self.model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
                 )
+
+        model = model.eval()
+        self.model = model.cuda()
+        kwargs_default = dict(
+            do_sample=False, temperature=0, max_new_tokens=2048, top_p=None, num_beams=1
+        )
+        kwargs_default.update(kwargs)
+        self.kwargs = kwargs_default
+        warnings.warn(
+            f"Following kwargs received: {self.kwargs}, will use as generation config. "
+        )
+
+    def apply_prompt_template(self, prompt):
+        model_path = self.model_path.lower()
+        if "mistral" in model_path:
+            template = "[INST] PLACEHOLDER [/INST]"
+        elif "vicuna" in model_path:
+            template = (
+                "A chat between a curious human and an artificial intelligence assistant. "
+                "The assistant gives helpful, detailed, and polite answers to the human's questions. "
+                "USER: PLACEHOLDER ASSISTANT:"
+            )
+        elif "34b" in model_path:
+            template = (
+                "<|im_start|>system\nAnswer the questions.<|im_end|><|im_start|>user\nPLACEHOLDER<|im_end|>"
+                "<|im_start|>assistant\n"
+            )
+        else:
+            raise NotImplementedError(
+                f"Prompt template for {model_path} not implemented."
+            )
+
+        prompt = template.replace("PLACEHOLDER", f"<image>\n{prompt}")
+        return prompt
+
+    def output_process(self, answer):
+        if "<s>" in answer:
+            answer = answer.replace("<s>", "").strip()
+        if "[/INST]" in answer:
+            answer = answer.split("[/INST]")[1].strip()
+        elif "ASSISTANT:" in answer:
+            answer = answer.split("ASSISTANT:")[1].strip()
+        elif "assistant\n" in answer:
+            answer = answer.split("assistant\n")[1].strip()
+        elif "<|end_header_id|>\n\n" in answer:
+            answer = answer.split("<|end_header_id|>\n\n")[2].strip()
+
+        if "</s>" in answer:
+            answer = answer.split("</s>")[0].strip()
+        elif "<|im_end|>" in answer:
+            answer = answer.split("<|im_end|>")[0].strip()
+        elif "<|eot_id|>" in answer:
+            answer = answer.split("<|eot_id|>")[0].strip()
+        return answer
+
+    def use_custom_prompt(self, dataset):
+        assert dataset is not None
+        if DATASET_TYPE(dataset) == "MCQ":
+            return True
+        return False
+
+    def build_prompt(self, line, dataset=None):
+        assert self.use_custom_prompt(dataset)
+        assert dataset is None or isinstance(dataset, str)
+        tgt_path = self.dump_image(line, dataset)
+
+        question = line["question"]
+        hint = line["hint"] if ("hint" in line and not pd.isna(line["hint"])) else None
+        if hint is not None:
+            question = hint + "\n" + question
+
+        options = {
+            cand: line[cand]
+            for cand in string.ascii_uppercase
+            if cand in line and not pd.isna(line[cand])
+        }
+        for key, item in options.items():
+            question += f"\n{key}. {item}"
+        prompt = question
+
+        if len(options):
+            prompt += (
+                "\n请直接回答选项字母。"
+                if cn_string(prompt)
+                else "\nAnswer with the option's letter from the given choices directly."
+            )
+        else:
+            prompt += (
+                "\n请直接回答问题。"
+                if cn_string(prompt)
+                else "\nAnswer the question directly."
+            )
+        message = [dict(type="image", value=s) for s in tgt_path]
+        message.append(dict(type="text", value=prompt))
+        return message
+
+    def generate_inner(self, message, dataset=None):
+        content, images = [], []
+        for msg in message:
+            if msg["type"] == "text":
+                content.append({"type": msg["type"], "text": msg["value"]})
+            else:
+                content.append({"type": "image"})
+                images.append(Image.open(msg["value"]).convert("RGB"))
+        conversation = [
+            {
+                "role": "user",
+                "content": content,
+            }
+        ]
+        prompt = self.processor.apply_chat_template(
+            conversation, add_generation_prompt=True
+        )
+        inputs = self.processor(prompt, images, return_tensors="pt").to(
+            "cuda", torch.float16
+        )
+        output = self.model.generate(**inputs, **self.kwargs)
+        answer = self.processor.decode(output[0], skip_special_token=True)
+        answer = self.output_process(answer)
+        return answer
+
+# To load lora fine-tuned models
+class LLaVA_Next_lora(BaseModel):
+
+    INSTALL_REQ = False
+    INTERLEAVE = True
+
+    def __init__(self, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", lora_path=None, **kwargs):
+        import transformers
+        from transformers import (
+            LlavaNextProcessor,
+            LlavaNextForConditionalGeneration,
+            AutoProcessor,
+            LlavaForConditionalGeneration,
+        )
+
+        self.model_path = model_path
+        if "34b" in model_path.lower():
+            self.processor = LlavaNextProcessor.from_pretrained(
+                self.model_path, use_fast=False
+            )
+        elif "interleave" in model_path.lower():
+            self.processor = AutoProcessor.from_pretrained(self.model_path)
+        else:
+            self.processor = LlavaNextProcessor.from_pretrained(self.model_path)
+        flash_attn_flag = False
+        try:
+            import flash_attn
+
+            flash_attn_flag = True
+        except ImportError:
+            pass
+
+        if flash_attn_flag:
+            if "interleave" in model_path.lower():
+                model = LlavaForConditionalGeneration.from_pretrained(
+                    self.model_path,
+                    torch_dtype=torch.float16,
+                    low_cpu_mem_usage=True,
+                    use_flash_attention_2=True,
+                )
+            else:
+                model = LlavaNextForConditionalGeneration.from_pretrained(
+                    self.model_path,
+                    torch_dtype=torch.float16,
+                    low_cpu_mem_usage=True,
+                    use_flash_attention_2=True,
+                )
+        else:
+            if "interleave" in model_path.lower():
+                model = LlavaForConditionalGeneration.from_pretrained(
+                    self.model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
+                )
+            else:
+                model = LlavaNextForConditionalGeneration.from_pretrained(
+                    self.model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
+                )
+
+        # --- Add LoRA adapter loading code ---
+        if lora_path:
+            print(f"Loading LoRA adapter from: {lora_path}")
+            model = PeftModel.from_pretrained(model, lora_path)
+        # ---
+
 
         model = model.eval()
         self.model = model.cuda()

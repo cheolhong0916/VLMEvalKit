@@ -248,10 +248,42 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
             from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
             MODEL_CLS = Qwen2_5_VLForConditionalGeneration
             self.processor = AutoProcessor.from_pretrained(model_path)
+            if self.processor.chat_template is None and self.processor.tokenizer.chat_template is not None:
+                self.processor.chat_template = self.processor.tokenizer.chat_template            
         else:
             from transformers import Qwen2VLForConditionalGeneration, Qwen2VLProcessor
             MODEL_CLS = Qwen2VLForConditionalGeneration
             self.processor = Qwen2VLProcessor.from_pretrained(model_path)
+            # if self.processor.chat_template is None and self.processor.tokenizer.chat_template is not None:
+            #     self.processor.chat_template = self.processor.tokenizer.chat_template         
+            if self.processor.chat_template is None:
+                print("Chat template not found. Manually setting the Qwen2-VL chat template.")
+                # This is the official chat template for Qwen2-VL series with the correct placeholder.
+                qwen2_vl_chat_template = (
+                    "{% for message in messages %}"
+                    "{% if loop.first and message['role'] == 'system' %}"
+                    "{{ '<|im_start|>system\n' + message['content'] + '<|im_end|>\n' }}"
+                    "{% elif message['role'] == 'user' %}"
+                    "{{ '<|im_start|>user\n' }}"
+                    "{% for item in message['content'] %}"
+                    "{% if item['type'] == 'text' %}{{ item['text'] }}"
+                    # IMPORTANT: Changed '<image>' to '<|image_pad|>'
+                    "{% elif item['type'] == 'image' %}{{ '<|image_pad|>' }}"
+                    "{% endif %}"
+                    "{% endfor %}"
+                    "{{ '<|im_end|>\n' }}"
+                    "{% elif message['role'] == 'assistant' %}"
+                    "{{ '<|im_start|>assistant\n' + message['content'] + '<|im_end|>\n' }}"
+                    "{% endif %}"
+                    "{% endfor %}"
+                    "{% if add_generation_prompt %}"
+                    "{{ '<|im_start|>assistant\n' }}"
+                    "{% endif %}"
+                )
+                self.processor.chat_template = qwen2_vl_chat_template
+                self.processor.tokenizer.chat_template = qwen2_vl_chat_template
+
+
 
         gpu_mems = get_gpu_memory()
         max_gpu_mem = max(gpu_mems) if gpu_mems != [] else -1
@@ -300,9 +332,12 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
             torch.cuda.set_device(0)
             self.device = 'cuda'
         else:
+            # self.model = MODEL_CLS.from_pretrained(
+            #     model_path, torch_dtype='auto', device_map="auto", attn_implementation='flash_attention_2'
+            # )
             self.model = MODEL_CLS.from_pretrained(
-                model_path, torch_dtype='auto', device_map="auto", attn_implementation='flash_attention_2'
-            )
+                model_path, torch_dtype=torch.bfloat16, device_map="auto", attn_implementation='flash_attention_2'
+            )            
             self.model.eval()
 
         torch.cuda.empty_cache()
