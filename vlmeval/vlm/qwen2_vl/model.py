@@ -235,7 +235,7 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
         assert model_path is not None
         self.model_path = model_path
         MODEL_CLS = None
-
+        # breakpoint()
         if listinstr(['omni'], model_path.lower()):
             try:
                 from transformers import Qwen2_5OmniForConditionalGeneration, Qwen2_5OmniProcessor
@@ -243,17 +243,17 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
                 logging.critical("pip install git+https://github.com/huggingface/transformers@3a1ead0aabed473eafe527915eea8c197d424356")  # noqa: E501
                 raise err
             MODEL_CLS = Qwen2_5OmniForConditionalGeneration
-            self.processor = Qwen2_5OmniProcessor.from_pretrained(model_path)
+            self.processor = Qwen2_5OmniProcessor.from_pretrained(model_path, use_fast=True)
         elif listinstr(['2.5', '2_5', 'qwen25'], model_path.lower()):
             from transformers import Qwen2_5_VLForConditionalGeneration, AutoProcessor
             MODEL_CLS = Qwen2_5_VLForConditionalGeneration
-            self.processor = AutoProcessor.from_pretrained(model_path)
+            self.processor = AutoProcessor.from_pretrained(model_path, use_fast=True)
             if self.processor.chat_template is None and self.processor.tokenizer.chat_template is not None:
                 self.processor.chat_template = self.processor.tokenizer.chat_template            
         else:
             from transformers import Qwen2VLForConditionalGeneration, Qwen2VLProcessor
             MODEL_CLS = Qwen2VLForConditionalGeneration
-            self.processor = Qwen2VLProcessor.from_pretrained(model_path)
+            self.processor = Qwen2VLProcessor.from_pretrained(model_path, use_fast=True)
             # if self.processor.chat_template is None and self.processor.tokenizer.chat_template is not None:
             #     self.processor.chat_template = self.processor.tokenizer.chat_template         
             if self.processor.chat_template is None:

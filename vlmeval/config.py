@@ -650,7 +650,7 @@ llava_series = {
     ),
 
     
-    # --- Fine-tuned LoRA Models ---
+    # --- Fine-tuned LoRA Models | lora_rank 8 ---
     "llava_next_vicuna_7b_lora_2d": partial(
         LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
         lora_path="/workspace/output/llava-next-7b/lora/sft/2d"),
@@ -682,6 +682,40 @@ llava_series = {
     "llava_next_vicuna_7b_lora_synthetic": partial(
         LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
         lora_path="/workspace/output/llava-next-7b/lora/sft/synthetic"),
+
+
+    # --- Fine-tuned LoRA Models | lora_rank 64 ---
+    "llava_next_vicuna_7b_lora_rank_64_2d": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/2d"),
+
+    "llava_next_vicuna_7b_lora_rank_64_3d": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/3d"),
+
+    "llava_next_vicuna_7b_lora_rank_64_dynamic": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/dynamic"),
+
+    "llava_next_vicuna_7b_lora_rank_64perception": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/perception"),
+        
+    "llava_next_vicuna_7b_lora_rank_64_real": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/real"),
+        
+    "llava_next_vicuna_7b_lora_rank_64_reasoning": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/reasoning"),
+
+    "llava_next_vicuna_7b_lora_rank_64_static": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/static"),
+
+    "llava_next_vicuna_7b_lora_rank_64_synthetic": partial(
+        LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
+        lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/synthetic"),
 }
 
 vita_series = {
@@ -1165,58 +1199,177 @@ qwen2vl_series = {
 
 
     # fine-tuned models
-    "Qwen2.5-VL-7B-synthetic": partial(
+    "Qwen2.5-VL-7B-Instruct-synthetic": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-synthetic-20250825_143256",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
-    "Qwen2.5-VL-7B-real": partial(
+    "Qwen2.5-VL-7B-Instruct-real": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-real-20250825_143256",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
-    "Qwen2.5-VL-7B-static": partial(
+    "Qwen2.5-VL-7B-Instruct-static": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-static-20250825_143256",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
-    "Qwen2.5-VL-7B-dynamic": partial(
+    "Qwen2.5-VL-7B-Instruct-dynamic": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-dynamic-20250825_143256",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
-    "Qwen2.5-VL-7B-perception": partial(
+    "Qwen2.5-VL-7B-Instruct-perception": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-perception-20250825_143256",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
-    "Qwen2.5-VL-7B-reasoning": partial(
+    "Qwen2.5-VL-7B-Instruct-reasoning": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-reasoning-20250825_143256",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
-    "Qwen2.5-VL-7B-2d": partial(
+    "Qwen2.5-VL-7B-Instruct-2d": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-2d-20250825_143256",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
-    "Qwen2.5-VL-7B-3d": partial(
+    "Qwen2.5-VL-7B-Instruct-3d": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-3d-20250825_143256",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+
+
+    # Qwen2.5-VL-7B-Instruct 1 Epoch
+    "Qwen2.5-VL-7B-Instruct-synthetic-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-synthetic-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-7B-Instruct-real-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-real-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-7B-Instruct-static-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-static-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-7B-Instruct-dynamic-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-dynamic-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-7B-Instruct-perception-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-perception-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-7B-Instruct-reasoning-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-reasoning-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-7B-Instruct-2d-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-2d-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-7B-Instruct-3d-1epoch": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-7B-Instruct-3d-20250917_050803",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+
+
+
+    # Qwen2.5-VL-32B-Instruct 0.5 Epoch
+    "Qwen2.5-VL-32B-Instruct-synthetic": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-synthetic-20250922_171431",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-32B-Instruct-real": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-real-20250922_043016",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-32B-Instruct-static": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-static-20250922_171431",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-32B-Instruct-dynamic": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-dynamic-20250922_171431",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-32B-Instruct-perception": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-perception-20250922_171431",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-32B-Instruct-reasoning": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-reasoning-20250922_171431",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-32B-Instruct-2d": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-2d-20250922_171431",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-32B-Instruct-3d": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-32B-Instruct-3d-20250922_171431",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
