@@ -256,34 +256,104 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
             self.processor = Qwen2VLProcessor.from_pretrained(model_path, use_fast=True)
             # if self.processor.chat_template is None and self.processor.tokenizer.chat_template is not None:
             #     self.processor.chat_template = self.processor.tokenizer.chat_template         
+
+
+
+            # if self.processor.chat_template is None:
+            #     print("Chat template not found. Manually setting the Qwen2-VL chat template.")
+            #     # This is the official chat template for Qwen2-VL series with the correct placeholder.
+            #     qwen2_vl_chat_template = (
+            #         "{% for message in messages %}"
+            #         "{% if loop.first and message['role'] == 'system' %}"
+            #         "{{ '<|im_start|>system\n' + message['content'] + '<|im_end|>\n' }}"
+            #         "{% elif message['role'] == 'user' %}"
+            #         "{{ '<|im_start|>user\n' }}"
+            #         "{% for item in message['content'] %}"
+            #         "{% if item['type'] == 'text' %}{{ item['text'] }}"
+            #         # IMPORTANT: Changed '<image>' to '<|image_pad|>'
+            #         "{% elif item['type'] == 'image' %}{{ '<|image_pad|>' }}"
+            #         "{% endif %}"
+            #         "{% endfor %}"
+            #         "{{ '<|im_end|>\n' }}"
+            #         "{% elif message['role'] == 'assistant' %}"
+            #         "{{ '<|im_start|>assistant\n' + message['content'] + '<|im_end|>\n' }}"
+            #         "{% endif %}"
+            #         "{% endfor %}"
+            #         "{% if add_generation_prompt %}"
+            #         "{{ '<|im_start|>assistant\n' }}"
+            #         "{% endif %}"
+            #     )
+            #     self.processor.chat_template = qwen2_vl_chat_template
+            #     self.processor.tokenizer.chat_template = qwen2_vl_chat_template
+
             if self.processor.chat_template is None:
-                print("Chat template not found. Manually setting the Qwen2-VL chat template.")
-                # This is the official chat template for Qwen2-VL series with the correct placeholder.
-                qwen2_vl_chat_template = (
-                    "{% for message in messages %}"
-                    "{% if loop.first and message['role'] == 'system' %}"
-                    "{{ '<|im_start|>system\n' + message['content'] + '<|im_end|>\n' }}"
-                    "{% elif message['role'] == 'user' %}"
-                    "{{ '<|im_start|>user\n' }}"
-                    "{% for item in message['content'] %}"
-                    "{% if item['type'] == 'text' %}{{ item['text'] }}"
-                    # IMPORTANT: Changed '<image>' to '<|image_pad|>'
-                    "{% elif item['type'] == 'image' %}{{ '<|image_pad|>' }}"
-                    "{% endif %}"
-                    "{% endfor %}"
-                    "{{ '<|im_end|>\n' }}"
-                    "{% elif message['role'] == 'assistant' %}"
-                    "{{ '<|im_start|>assistant\n' + message['content'] + '<|im_end|>\n' }}"
-                    "{% endif %}"
-                    "{% endfor %}"
-                    "{% if add_generation_prompt %}"
-                    "{{ '<|im_start|>assistant\n' }}"
-                    "{% endif %}"
-                )
-                self.processor.chat_template = qwen2_vl_chat_template
-                self.processor.tokenizer.chat_template = qwen2_vl_chat_template
-
-
+                if 'Instruct' in model_path or 'instruct' in model_path:
+                    print("Chat template not found. Manually setting the Qwen2-VL Instruct chat template.")
+                    # Official Qwen2-VL Instruct chat template
+                    qwen2_instruct_template = (
+                        "{%- set image_count = namespace(value=0) -%}"
+                        "{%- set video_count = namespace(value=0) -%}"
+                        "{%- for message in messages -%}"
+                        "{%- if loop.first and message['role'] != 'system' -%}"
+                        "{{- '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' -}}"
+                        "{%- endif -%}"
+                        "{{- '<|im_start|>' -}}"
+                        "{{- message['role'] -}}"
+                        "{{- '\n' -}}"
+                        "{%- if message['content'] is string -%}"
+                        "{{- message['content'] -}}"
+                        "{{- '<|im_end|>\n' -}}"
+                        "{%- else -%}"
+                        "{%- for content in message['content'] -%}"
+                        "{%- if content['type'] == 'image' or 'image' in content or 'image_url' in content -%}"
+                        "{%- set image_count.value = image_count.value + 1 -%}"
+                        "{%- if add_vision_id -%}"
+                        "{{- 'Picture ' -}}"
+                        "{{- image_count.value -}}"
+                        "{{- ': ' -}}"
+                        "{%- endif -%}"
+                        "{{- '<|vision_start|><|image_pad|><|vision_end|>' -}}"
+                        "{%- elif content['type'] == 'video' or 'video' in content -%}"
+                        "{%- set video_count.value = video_count.value + 1 -%}"
+                        "{%- if add_vision_id -%}"
+                        "{{- 'Video ' -}}"
+                        "{{- video_count.value -}}"
+                        "{{- ': ' -}}"
+                        "{%- endif -%}"
+                        "{{- '<|vision_start|><|video_pad|><|vision_end|>' -}}"
+                        "{%- elif 'text' in content -%}"
+                        "{{- content['text'] -}}"
+                        "{%- endif -%}"
+                        "{%- endfor -%}"
+                        "{{- '<|im_end|>\n' -}}"
+                        "{%- endif -%}"
+                        "{%- endfor -%}"
+                        "{%- if add_generation_prompt -%}"
+                        "{{- '<|im_start|>assistant\n' -}}"
+                        "{%- endif -%}"
+                    )
+                    self.processor.chat_template = qwen2_instruct_template
+                    self.processor.tokenizer.chat_template = qwen2_instruct_template
+                else:
+                    print("Chat template not found. Manually setting the Qwen2-VL Base chat template.")
+                    # Official Qwen2-VL Base chat template
+                    qwen2_base_template = (
+                        "{%- if messages is string -%}"
+                        "{{- messages -}}"
+                        "{%- else -%}"
+                        "{%- for content in messages -%}"
+                        "{%- if content['type'] == 'image' or 'image' in content or 'image_url' in content -%}"
+                        "{{- '<|vision_start|><|image_pad|><|vision_end|>' -}}"
+                        "{%- elif content['type'] == 'video' or 'video' in content -%}"
+                        "{{- '<|vision_start|><|video_pad|><|vision_end|>' -}}"
+                        "{%- elif 'text' in content -%}"
+                        "{{- content['text'] -}}"
+                        "{%- endif -%}"
+                        "{%- endfor -%}"
+                        "{%- endif -%}"
+                    )
+                    self.processor.chat_template = qwen2_base_template
+                    self.processor.tokenizer.chat_template = qwen2_base_template
 
         gpu_mems = get_gpu_memory()
         max_gpu_mem = max(gpu_mems) if gpu_mems != [] else -1
