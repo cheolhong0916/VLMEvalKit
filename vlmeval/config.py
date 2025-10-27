@@ -716,6 +716,32 @@ llava_series = {
     "llava_next_vicuna_7b_lora_rank_64_synthetic": partial(
         LLaVA_Next_lora, model_path="llava-hf/llava-v1.6-vicuna-7b-hf", 
         lora_path="/workspace/output/llava-next-7b/lora/sft-lora_rank64-freeze_vt_false/synthetic"),
+
+    
+    # --- Fine-tuned LoRA Models | full fine tuning ---
+    "llava_next_vicuna_7b_full_2d": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
+
+    "llava_next_vicuna_7b_full_3d": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
+
+    "llava_next_vicuna_7b_full_dynamic": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
+
+    "llava_next_vicuna_7b_full_perception": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
+        
+    "llava_next_vicuna_7b_full_real": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
+        
+    "llava_next_vicuna_7b_full_reasoning": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
+
+    "llava_next_vicuna_7b_full_static": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
+
+    "llava_next_vicuna_7b_full_synthetic": partial(
+        LLaVA_Next, model_path="llava-hf/llava-v1.6-vicuna-7b-hf"),
 }
 
 vita_series = {
@@ -1199,6 +1225,65 @@ qwen2vl_series = {
 
 
     # fine-tuned models
+    # Qwen2.5-VL-3B-Instruct
+    "Qwen2.5-VL-3B-Instruct-synthetic": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-synthetic-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-real": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-real-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-static": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-static-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-dynamic": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-dynamic-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-perception": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-perception-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-reasoning": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-reasoning-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-2d": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-2d-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-3d": partial(
+        Qwen2VLChat,
+        model_path="/workspace/output/Qwen/Qwen2.5-VL-3B-Instruct-3d-20251005_091507",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+
+    # Qwen2.5-VL-7B-Instruct (0.5epoch)
     "Qwen2.5-VL-7B-Instruct-synthetic": partial(
         Qwen2VLChat,
         model_path="/workspace/output/qwen2.5vl-7B-baseline-synthetic-20250825_143256",
@@ -1753,6 +1838,10 @@ robopoint_series = {
     "robopoint-v1-vicuna-v1.5-13b": partial(RoboPoint, model_path="wentao-yuan/robopoint-v1-vicuna-v1.5-13b"),
 }
 
+roborefer_series = {
+    "RoboRefer-2B-SFT": partial(RoboRefer, model_path="Zhoues/RoboRefer-2B-SFT"),
+    "RoboRefer-8B-SFT": partial(RoboRefer, model_path="Zhoues/RoboRefer-8B-SFT"),
+}
 
 supported_VLM = {}
 
@@ -1768,7 +1857,7 @@ model_groups = [
     aria_series, smolvlm_series, sail_series, valley_series, vita_series,
     ross_series, emu_series, ola_series, ursa_series, gemma_series,
     long_vita_series, ristretto_series, kimi_series, aguvis_series, flash_vl,
-    robopoint_series,
+    robopoint_series, roborefer_series,
 ]
 
 for grp in model_groups:

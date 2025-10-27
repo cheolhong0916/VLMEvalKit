@@ -14,7 +14,7 @@
 # --- Configuration ---
 
 # The dataset to use for evaluation.
-DATASET="RoboSpatial"
+DATASET="ERQA"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
@@ -29,12 +29,19 @@ DATASET="RoboSpatial"
 #     "Qwen2.5-VL-7B-Instruct-synthetic-1epoch"
 # )
 
-MODELS=(
-    "Qwen2.5-VL-32B-Instruct-real"
-    "Qwen2.5-VL-32B-Instruct-reasoning"
-    "Qwen2.5-VL-32B-Instruct-static"
-    "Qwen2.5-VL-32B-Instruct-synthetic"
-)
+# MODELS=(
+#     "Qwen2.5-VL-32B-Instruct-real"
+#     "Qwen2.5-VL-32B-Instruct-reasoning"
+#     "Qwen2.5-VL-32B-Instruct-static"
+#     "Qwen2.5-VL-32B-Instruct-synthetic"
+# )
+
+# MODELS=(
+#     "Qwen2-VL-7B-Instruct-real"
+#     "Qwen2-VL-7B-Instruct-reasoning"
+#     "Qwen2-VL-7B-Instruct-static"
+#     "Qwen2-VL-7B-Instruct-synthetic"
+# )
 
 # MODELS=(
 #     # "llava_next_vicuna_7b_lora_rank_64_2d"
@@ -46,6 +53,18 @@ MODELS=(
 #     "llava_next_vicuna_7b_lora_rank_64_static"
 #     "llava_next_vicuna_7b_lora_rank_64_synthetic"
 # )
+
+# llava full sft
+MODELS=(
+    # "llava_next_vicuna_7b_full_2d"
+    # "llava_next_vicuna_7b_full_3d"
+    # "llava_next_vicuna_7b_full_dynamic"
+    # "llava_next_vicuna_7b_full_perception"
+    "llava_next_vicuna_7b_full_real"
+    "llava_next_vicuna_7b_full_reasoning"
+    "llava_next_vicuna_7b_full_static"
+    "llava_next_vicuna_7b_full_synthetic"
+)
 
 # --- Execution ---
 

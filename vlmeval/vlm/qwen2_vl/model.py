@@ -253,7 +253,8 @@ class Qwen2VLChat(Qwen2VLPromptMixin, BaseModel):
         else:
             from transformers import Qwen2VLForConditionalGeneration, Qwen2VLProcessor
             MODEL_CLS = Qwen2VLForConditionalGeneration
-            self.processor = Qwen2VLProcessor.from_pretrained(model_path, use_fast=True)
+            # self.processor = Qwen2VLProcessor.from_pretrained(model_path, use_fast=True)
+            self.processor = Qwen2VLProcessor.from_pretrained(model_path, use_fast=False)
             # if self.processor.chat_template is None and self.processor.tokenizer.chat_template is not None:
             #     self.processor.chat_template = self.processor.tokenizer.chat_template         
 
