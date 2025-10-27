@@ -14,10 +14,32 @@
 # --- Configuration ---
 
 # The dataset to use for evaluation.
-DATASET="RoboSpatial"
+DATASET="ERQA"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
+MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-2d_erqa"
+#     "Qwen2.5-VL-3B-Instruct-3d_erqa"
+#     "Qwen2.5-VL-3B-Instruct-dynamic_erqa"
+#     "Qwen2.5-VL-3B-Instruct-perception_erqa"
+    "Qwen2.5-VL-3B-Instruct-real_erqa"
+    "Qwen2.5-VL-3B-Instruct-reasoning_erqa"
+    "Qwen2.5-VL-3B-Instruct-static_erqa"
+    "Qwen2.5-VL-3B-Instruct-synthetic_erqa"
+)
+
+# MODELS=(
+#     # "Qwen2.5-VL-7B-Instruct-2d"
+#     # "Qwen2.5-VL-7B-Instruct-3d"
+#     # "Qwen2.5-VL-7B-Instruct-dynamic"
+#     # "Qwen2.5-VL-7B-Instruct-perception"
+#     "Qwen2.5-VL-7B-Instruct-real"
+#     "Qwen2.5-VL-7B-Instruct-reasoning"
+#     "Qwen2.5-VL-7B-Instruct-static"
+#     "Qwen2.5-VL-7B-Instruct-synthetic"
+# )
+
 # MODELS=(
 #     # "Qwen2.5-VL-7B-Instruct-2d-1epoch"
 #     # "Qwen2.5-VL-7B-Instruct-3d-1epoch"
@@ -29,12 +51,23 @@ DATASET="RoboSpatial"
 #     "Qwen2.5-VL-7B-Instruct-synthetic-1epoch"
 # )
 
-MODELS=(
-    "Qwen2.5-VL-32B-Instruct-real"
-    "Qwen2.5-VL-32B-Instruct-reasoning"
-    "Qwen2.5-VL-32B-Instruct-static"
-    "Qwen2.5-VL-32B-Instruct-synthetic"
-)
+# MODELS=(
+#     "Qwen2.5-VL-32B-Instruct-real"
+#     "Qwen2.5-VL-32B-Instruct-reasoning"
+#     "Qwen2.5-VL-32B-Instruct-static"
+#     "Qwen2.5-VL-32B-Instruct-synthetic"
+# )
+
+# MODELS=(
+#     # "llava_next_vicuna_7b_lora_rank_64_2d"
+#     # "llava_next_vicuna_7b_lora_rank_64_3d"
+#     # "llava_next_vicuna_7b_lora_rank_64_dynamic"
+#     # "llava_next_vicuna_7b_lora_rank_64_perception"
+#     "llava_next_vicuna_7b_lora_rank_64_real"
+#     "llava_next_vicuna_7b_lora_rank_64_reasoning"
+#     "llava_next_vicuna_7b_lora_rank_64_static"
+#     "llava_next_vicuna_7b_lora_rank_64_synthetic"
+# )
 
 # MODELS=(
 #     # "llava_next_vicuna_7b_lora_rank_64_2d"
@@ -60,7 +93,7 @@ for model_name in "${MODELS[@]}"; do
     
     # Run the evaluation command for the current model.
     # CUDA_VISIBLE_DEVICES=4,5,6,7 python run.py --data "${DATASET}" --model "${model_name}"
-    CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --nproc-per-node=4 --master_port=30000 run.py --data "${DATASET}" --model "${model_name}"
+    CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --nproc-per-node=4 --master_port=31000 run.py --data "${DATASET}" --model "${model_name}"
 
     # Check the exit code of the last command.
     # If it's non-zero, an error occurred.

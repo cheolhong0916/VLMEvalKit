@@ -18,17 +18,17 @@ DATASET="ERQA"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
-MODELS=(
-    "Qwen2.5-VL-3B-Instruct-2d_erqa"
-    "Qwen2.5-VL-3B-Instruct-3d_erqa"
-    "Qwen2.5-VL-3B-Instruct-dynamic_erqa"
-    "Qwen2.5-VL-3B-Instruct-perception_erqa"
-    # "Qwen2.5-VL-3B-Instruct-real_erqa"
-    # "Qwen2.5-VL-3B-Instruct-reasoning_erqa"
-    # "Qwen2.5-VL-3B-Instruct-static_erqa"
-    # "Qwen2.5-VL-3B-Instruct-synthetic_erqa"
-)
 
+MODELS=(
+    "Qwen2.5-VL-3B-Instruct-2d"
+    "Qwen2.5-VL-3B-Instruct-3d"
+    "Qwen2.5-VL-3B-Instruct-dynamic"
+    "Qwen2.5-VL-3B-Instruct-perception"
+    "Qwen2.5-VL-3B-Instruct-real"
+    "Qwen2.5-VL-3B-Instruct-reasoning"
+    "Qwen2.5-VL-3B-Instruct-static"
+    "Qwen2.5-VL-3B-Instruct-synthetic"
+)
 
 # MODELS=(
 #     "Qwen2.5-VL-7B-Instruct-2d"
@@ -90,8 +90,7 @@ for model_name in "${MODELS[@]}"; do
     echo "--> Starting evaluation for model: ${model_name}"
     
     # Run the evaluation command for the current model.
-    # CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py --data "${DATASET}" --model "${model_name}"
-    CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc-per-node=4 --master_port=30000 run.py --data "${DATASET}" --model "${model_name}"
+    torchrun --nproc-per-node=8 run.py --data "${DATASET}" --model "${model_name}"
 
     # Check the exit code of the last command.
     # If it's non-zero, an error occurred.

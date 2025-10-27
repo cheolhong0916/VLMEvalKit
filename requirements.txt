@@ -2,7 +2,7 @@ accelerate
 dotenv
 einops
 # for gemini api
-google-genai
+# google-genai
 gradio
 huggingface_hub
 imageio
@@ -30,10 +30,10 @@ tabulate
 tiktoken
 timeout-decorator
 timm
-torch
-torchvision
+# torch
+# torchvision
 tqdm
-transformers
+# transformers
 typing_extensions
 validators
 xlsxwriter
