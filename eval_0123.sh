@@ -18,17 +18,68 @@ DATASET="ERQA"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-2d_erqa"
+#     "Qwen2.5-VL-3B-Instruct-3d_erqa"
+#     "Qwen2.5-VL-3B-Instruct-dynamic_erqa"
+#     "Qwen2.5-VL-3B-Instruct-perception_erqa"
+#     # "Qwen2.5-VL-3B-Instruct-real_erqa"
+#     # "Qwen2.5-VL-3B-Instruct-reasoning_erqa"
+#     # "Qwen2.5-VL-3B-Instruct-static_erqa"
+#     # "Qwen2.5-VL-3B-Instruct-synthetic_erqa"
+# )
+
+
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-2d-1epoch"
+#     "Qwen2.5-VL-3B-Instruct-3d-1epoch"
+#     "Qwen2.5-VL-3B-Instruct-dynamic-1epoch"
+#     "Qwen2.5-VL-3B-Instruct-perception-1epoch"
+#     # "Qwen2.5-VL-3B-Instruct-real-1epoch"
+#     # "Qwen2.5-VL-3B-Instruct-reasoning-1epoch"
+#     # "Qwen2.5-VL-3B-Instruct-static-1epoch"
+#     # "Qwen2.5-VL-3B-Instruct-synthetic-1epoch"
+# )
+
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-single_prism"
+#     "Qwen2.5-VL-3B-Instruct-single_refspatial"
+#     "Qwen2.5-VL-3B-Instruct-single_robospatial"
+#     # "Qwen2.5-VL-3B-Instruct-single_sat"
+#     # "Qwen2.5-VL-3B-Instruct-single_spar7m"
+#     # "Qwen2.5-VL-3B-Instruct-single_spatial457"
+# )
+
 MODELS=(
-    "Qwen2.5-VL-3B-Instruct-2d_erqa"
-    "Qwen2.5-VL-3B-Instruct-3d_erqa"
-    "Qwen2.5-VL-3B-Instruct-dynamic_erqa"
-    "Qwen2.5-VL-3B-Instruct-perception_erqa"
-    # "Qwen2.5-VL-3B-Instruct-real_erqa"
-    # "Qwen2.5-VL-3B-Instruct-reasoning_erqa"
-    # "Qwen2.5-VL-3B-Instruct-static_erqa"
-    # "Qwen2.5-VL-3B-Instruct-synthetic_erqa"
+    "Qwen2.5-VL-3B-Instruct-single_prism_80k"
+    "Qwen2.5-VL-3B-Instruct-single_refspatial_80k"
+    "Qwen2.5-VL-3B-Instruct-single_robospatial_80k"
+    # "Qwen2.5-VL-3B-Instruct-single_sat_80k"
+    # "Qwen2.5-VL-3B-Instruct-single_spar7m_80k"
+    # "Qwen2.5-VL-3B-Instruct-single_spatial457_80k"
 )
 
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-top3_action_reasoning"
+#     "Qwen2.5-VL-3B-Instruct-top3_multi-view_reasoning"
+#     "Qwen2.5-VL-3B-Instruct-top3_other"
+#     "Qwen2.5-VL-3B-Instruct-top3_pointing"
+#     # "Qwen2.5-VL-3B-Instruct-top3_spatial_reasoning"
+#     # "Qwen2.5-VL-3B-Instruct-top3_state_estimation"
+#     # "Qwen2.5-VL-3B-Instruct-top3_task_reasoning"
+#     # "Qwen2.5-VL-3B-Instruct-top3_trajectory_reasoning"
+# )
+
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-top3_action_reasoning_80k"
+#     "Qwen2.5-VL-3B-Instruct-top3_multi-view_reasoning_80k"
+#     "Qwen2.5-VL-3B-Instruct-top3_other_80k"
+#     "Qwen2.5-VL-3B-Instruct-top3_pointing_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_spatial_reasoning_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_state_estimation_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_task_reasoning_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_trajectory_reasoning_80k"
+# )
 
 # MODELS=(
 #     "Qwen2.5-VL-7B-Instruct-2d"
@@ -91,7 +142,7 @@ for model_name in "${MODELS[@]}"; do
     
     # Run the evaluation command for the current model.
     # CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py --data "${DATASET}" --model "${model_name}"
-    CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc-per-node=4 --master_port=30000 run.py --data "${DATASET}" --model "${model_name}"
+    CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc-per-node=4 --master_port=40000 run.py --data "${DATASET}" --model "${model_name}"
 
     # Check the exit code of the last command.
     # If it's non-zero, an error occurred.
