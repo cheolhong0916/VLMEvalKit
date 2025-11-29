@@ -32,7 +32,7 @@ class RoboRefer(BaseModel):
     INTERLEAVE = True 
 
     def __init__(self,
-                 vlm_model_path='Zhoues/RoboRefer-2B-SFT',
+                 vlm_model_path='',
                  depth_model_path=None,
                  depth_encoder='vitl',
                  enable_depth=False,

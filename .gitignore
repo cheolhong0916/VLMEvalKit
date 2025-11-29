@@ -205,3 +205,5 @@ tmp/
 InternVL*
 Qwen*
 CongRong*
+
+VLMEvalKit-outputs/

@@ -65,6 +65,7 @@ from .GUI.screenspot_pro import ScreenSpot_Pro
 from .mmifeval import MMIFEval
 from .robospatial import RoboSpatial
 from .erqa import ERQA
+from .embspatialbench import EmbSpatialBench
 
 
 class ConcatDataset(ImageBaseDataset):
@@ -167,7 +168,7 @@ IMAGE_DATASET = [
     ScreenSpotV2, MMIFEval, Spatial457, VisuLogic, CVBench, PathVQA_VAL,
     PathVQA_TEST, TDBench, TDBenchGrounding, MicroBench, CharXiv, OmniMedVQA,
     WildDocBenchmark, MSEarthMCQ, OCR_Reasoning, PhyX, VLMBlind, CountBenchQA,
-    RoboSpatial, ERQA, SAT,
+    RoboSpatial, ERQA, SAT, EmbSpatialBench
 ]
 
 

@@ -2,6 +2,7 @@ from vlmeval.vlm import *
 from vlmeval.api import *
 from functools import partial
 import os
+from pathlib import Path
 
 PandaGPT_ROOT = None
 MiniGPT4_ROOT = None
@@ -16,6 +17,9 @@ PLLaVA_ROOT = None
 RBDash_ROOT = None
 VITA_ROOT = None
 LLAVA_V1_7B_MODEL_PTH = "Please set your local path to LLaVA-7B-v1.1 here, the model weight is obtained by merging LLaVA delta weight based on vicuna-7b-v1.1 in https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md with vicuna-7b-v1.1. "
+
+PRISMATIC_VLM_ROOT = "/data/shared/Qwen/prismatic-vlms" 
+HF_TOKEN = Path(os.path.join(PRISMATIC_VLM_ROOT, ".hf_token")).read_text().strip()
 
 video_models = {
     "Video-LLaVA-7B": partial(VideoLLaVA, model_path="LanguageBind/Video-LLaVA-7B"),
@@ -1042,6 +1046,20 @@ vila_series = {
     "VILA1.5-40b": partial(VILA, model_path="Efficient-Large-Model/VILA1.5-40b"),
     "NVILA-8B": partial(NVILA, model_path="Efficient-Large-Model/NVILA-8B"),
     "NVILA-15B": partial(NVILA, model_path="Efficient-Large-Model/NVILA-15B"),
+    "NVILA-Lite-2B": partial(NVILA, model_path="Efficient-Large-Model/NVILA-Lite-2B"),
+    # Data Scale Experiment Fine-tuned Models
+    "NVILA-Lite-2B-data-scale-exp-80k" : partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_80K-20251108_180221"),
+    "NVILA-Lite-2B-data-scale-exp-400k" : partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_400K-20251108_180221"),
+    "NVILA-Lite-2B-data-scale-exp-800k" : partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_800K-20251108_180221"),
+    # Single Dataset Fine-tuned Models
+    "NVILA-Lite-2B-single_prism_80k": partial(VILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_PRISM_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_refspatial_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_robospatial_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_ROBOSPATIAL_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_sat_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SAT_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_spar7m_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SPAR7M_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_spatial457_23k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SPATIAL457_23K-20251107_104236"),
+
+
 }
 
 ovis_series = {
@@ -1520,6 +1538,30 @@ qwen2vl_series = {
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
+
+    # Data Scale Exp (80k, 400k, 800k)
+    "Qwen2.5-VL-3B-Instruct-data_scale_exp_80k": partial(
+        Qwen2VLChat,
+        model_path="/data/shared/Qwen/mydisk/output/Qwen/Qwen2.5-VL-3B-Instruct-data_scale_exp_80k-20251114_120221",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-data_scale_exp_400k": partial(
+        Qwen2VLChat,
+        model_path="/data/shared/Qwen/mydisk/output/Qwen/Qwen2.5-VL-3B-Instruct-data_scale_exp_400k-20251114_120221",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-data_scale_exp_800k": partial(
+        Qwen2VLChat,
+        model_path="/data/shared/Qwen/mydisk/output/Qwen/Qwen2.5-VL-3B-Instruct-data_scale_exp_800k-20251114_120221",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+
 
     # Qwen2.5-VL-7B-Instruct (0.5epoch)
     "Qwen2.5-VL-7B-Instruct-synthetic": partial(
@@ -2117,8 +2159,27 @@ robopoint_series = {
 }
 
 roborefer_series = {
-    "RoboRefer-2B-SFT": partial(RoboRefer, model_path="Zhoues/RoboRefer-2B-SFT"),
-    "RoboRefer-8B-SFT": partial(RoboRefer, model_path="Zhoues/RoboRefer-8B-SFT"),
+    "RoboRefer-2B-SFT": partial(RoboRefer, vlm_model_path="Zhoues/RoboRefer-2B-SFT"),
+    "RoboRefer-8B-SFT": partial(RoboRefer, vlm_model_path="Zhoues/RoboRefer-8B-SFT"),
+}
+
+prismatic_series = {
+    "prism-dinosiglip+7b": partial(
+        PrismaticVLM,
+        model_path="prism-dinosiglip+7b",
+    ),
+    "prism-dinosiglip+7b-data-scale-exp-80k": partial(
+        PrismaticVLM,
+        model_path="/data/shared/Qwen/mydisk/output/DATA_SCALE_EXP/prism-dinosiglip+7b-data-scale-exp-80k-20251110_150656",
+    ),
+    "prism-dinosiglip+7b-data-scale-exp-400k": partial(
+        PrismaticVLM,
+        model_path="/data/shared/Qwen/mydisk/output/DATA_SCALE_EXP/prism-dinosiglip+7b-data-scale-exp-400k-20251110_150656",
+    ),
+    "prism-dinosiglip+7b-data-scale-exp-800k": partial(
+        PrismaticVLM,
+        model_path="/data/shared/Qwen/mydisk/output/DATA_SCALE_EXP/prism-dinosiglip+7b-data-scale-exp-800k-20251110_150656",
+    ),
 }
 
 supported_VLM = {}
@@ -2135,7 +2196,7 @@ model_groups = [
     aria_series, smolvlm_series, sail_series, valley_series, vita_series,
     ross_series, emu_series, ola_series, ursa_series, gemma_series,
     long_vita_series, ristretto_series, kimi_series, aguvis_series, flash_vl,
-    robopoint_series, roborefer_series,
+    robopoint_series, roborefer_series, prismatic_series,
 ]
 
 for grp in model_groups:

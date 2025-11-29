@@ -233,12 +233,13 @@ def main():
                     supported_VLM[m] = partial(GPT4V, **kws)
                     logger.warning(f'FWD_API is set, will use class `GPT4V` for {m}')
 
-    if WORLD_SIZE > 1:
-        import torch.distributed as dist
-        dist.init_process_group(
-            backend='nccl',
-            timeout=datetime.timedelta(seconds=int(os.environ.get('DIST_TIMEOUT', 3600)))
-        )
+    import torch.distributed as dist
+    # if WORLD_SIZE > 1:
+    #     import torch.distributed as dist
+    #     dist.init_process_group(
+    #         backend='nccl',
+    #         timeout=datetime.timedelta(seconds=int(os.environ.get('DIST_TIMEOUT', 3600)))
+    #     )
 
     for _, model_name in enumerate(args.model):
         model = None

@@ -100,3 +100,4 @@ from .wethink_vl import WeThinkVL
 from .flash_vl import FlashVL
 from .robopoint import RoboPoint
 from .roborefer import RoboRefer
+from .prismatic_vlm import PrismaticVLM

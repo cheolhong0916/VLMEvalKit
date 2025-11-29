@@ -14,7 +14,7 @@
 # --- Configuration ---
 
 # The dataset to use for evaluation.
-DATASET="ERQA"
+DATASET="RoboSpatial"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
@@ -49,14 +49,14 @@ DATASET="ERQA"
 #     "Qwen2.5-VL-3B-Instruct-single_spatial457"
 # )
 
-MODELS=(
-    # "Qwen2.5-VL-3B-Instruct-single_prism_80k"
-    # "Qwen2.5-VL-3B-Instruct-single_refspatial_80k"
-    # "Qwen2.5-VL-3B-Instruct-single_robospatial_80k"
-    "Qwen2.5-VL-3B-Instruct-single_sat_80k"
-    "Qwen2.5-VL-3B-Instruct-single_spar7m_80k"
-    "Qwen2.5-VL-3B-Instruct-single_spatial457_80k"
-)
+# MODELS=(
+#     # "Qwen2.5-VL-3B-Instruct-single_prism_80k"
+#     # "Qwen2.5-VL-3B-Instruct-single_refspatial_80k"
+#     # "Qwen2.5-VL-3B-Instruct-single_robospatial_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_sat_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_spar7m_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_spatial457_23k"
+# )
 
 # MODELS=(
 #     # "Qwen2.5-VL-3B-Instruct-top3_action_reasoning"
@@ -74,10 +74,10 @@ MODELS=(
 #     # "Qwen2.5-VL-3B-Instruct-top3_multi-view_reasoning_80k"
 #     # "Qwen2.5-VL-3B-Instruct-top3_other_80k"
 #     # "Qwen2.5-VL-3B-Instruct-top3_pointing_80k"
-#     "Qwen2.5-VL-3B-Instruct-top3_spatial_reasoning_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_spatial_reasoning_80k"
 #     "Qwen2.5-VL-3B-Instruct-top3_state_estimation_80k"
 #     "Qwen2.5-VL-3B-Instruct-top3_task_reasoning_80k"
-#     "Qwen2.5-VL-3B-Instruct-top3_trajectory_reasoning_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_trajectory_reasoning_80k"
 # )
 
 # MODELS=(
@@ -129,6 +129,18 @@ MODELS=(
 #     "llava_next_vicuna_7b_lora_rank_64_reasoning"
 #     "llava_next_vicuna_7b_lora_rank_64_static"
 #     "llava_next_vicuna_7b_lora_rank_64_synthetic"
+# )
+
+MODELS=(
+    "NVILA-Lite-2B-data-scale-exp-80k"
+    "NVILA-Lite-2B-data-scale-exp-400k"
+    "NVILA-Lite-2B-data-scale-exp-800k"
+)
+
+# MODELS=(
+#     "prism-dinosiglip+7b-data-scale-exp-80k"
+#     "prism-dinosiglip+7b-data-scale-exp-400k"
+#     "prism-dinosiglip+7b-data-scale-exp-800k"
 # )
 
 # --- Execution ---

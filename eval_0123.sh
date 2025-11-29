@@ -50,14 +50,15 @@ DATASET="ERQA"
 #     # "Qwen2.5-VL-3B-Instruct-single_spatial457"
 # )
 
-MODELS=(
-    "Qwen2.5-VL-3B-Instruct-single_prism_80k"
-    "Qwen2.5-VL-3B-Instruct-single_refspatial_80k"
-    "Qwen2.5-VL-3B-Instruct-single_robospatial_80k"
-    # "Qwen2.5-VL-3B-Instruct-single_sat_80k"
-    # "Qwen2.5-VL-3B-Instruct-single_spar7m_80k"
-    # "Qwen2.5-VL-3B-Instruct-single_spatial457_80k"
-)
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct"
+#     "Qwen2.5-VL-3B-Instruct-single_prism_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_refspatial_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_robospatial_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_sat_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_spar7m_80k"
+#     "Qwen2.5-VL-3B-Instruct-single_spatial457_23k"
+# )
 
 # MODELS=(
 #     "Qwen2.5-VL-3B-Instruct-top3_action_reasoning"
@@ -71,11 +72,11 @@ MODELS=(
 # )
 
 # MODELS=(
-#     "Qwen2.5-VL-3B-Instruct-top3_action_reasoning_80k"
-#     "Qwen2.5-VL-3B-Instruct-top3_multi-view_reasoning_80k"
-#     "Qwen2.5-VL-3B-Instruct-top3_other_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_action_reasoning_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_multi-view_reasoning_80k"
+#     # "Qwen2.5-VL-3B-Instruct-top3_other_80k"
 #     "Qwen2.5-VL-3B-Instruct-top3_pointing_80k"
-#     # "Qwen2.5-VL-3B-Instruct-top3_spatial_reasoning_80k"
+#     "Qwen2.5-VL-3B-Instruct-top3_spatial_reasoning_80k"
 #     # "Qwen2.5-VL-3B-Instruct-top3_state_estimation_80k"
 #     # "Qwen2.5-VL-3B-Instruct-top3_task_reasoning_80k"
 #     # "Qwen2.5-VL-3B-Instruct-top3_trajectory_reasoning_80k"
@@ -127,6 +128,19 @@ MODELS=(
 #     # "llava_next_vicuna_7b_lora_rank_64_reasoning"
 #     # "llava_next_vicuna_7b_lora_rank_64_static"
 #     # "llava_next_vicuna_7b_lora_rank_64_synthetic"
+# )
+
+
+MODELS=(
+    "NVILA-Lite-2B-data-scale-exp-80k"
+    # "NVILA-Lite-2B-data-scale-exp-400k"
+    # "NVILA-Lite-2B-data-scale-exp-800k"
+)
+
+# MODELS=(
+#     # "Qwen2.5-VL-3B-Instruct-data_scale_exp_80k"
+#     # "Qwen2.5-VL-3B-Instruct-data_scale_exp_400k"
+#     "Qwen2.5-VL-3B-Instruct-data_scale_exp_800k"
 # )
 
 # --- Execution ---
