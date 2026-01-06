@@ -402,6 +402,7 @@ class LLaVA_Next(BaseModel):
         output = self.model.generate(**inputs, **self.kwargs)
         answer = self.processor.decode(output[0], skip_special_token=True)
         answer = self.output_process(answer)
+        answer = answer.replace('<unk>', '')
         return answer
 
 # To load lora fine-tuned models
@@ -715,7 +716,6 @@ class LLaVA_OneVision(BaseModel):
                     "mm_spatial_pool_mode"
                 ]
 
-        rank, world_size = get_rank_and_world_size()
         model_name = get_model_name_from_path(model_path)
         import warnings
         # filter warning align with official code
@@ -904,7 +904,7 @@ class LLaVA_OneVision(BaseModel):
         return spare_frames, frame_time, video_time
 
     def generate_inner(self, message, dataset=None):
-        if DATASET_MODALITY(dataset) == 'VIDEO':
+        if DATASET_MODALITY(dataset) == 'VIDEO' and 'megabench' not in dataset.lower():
             return self.generate_inner_video(message, dataset)
         else:
             return self.generate_inner_image(message, dataset)
@@ -1024,7 +1024,7 @@ class LLaVA_OneVision_HF(BaseModel):
         return video_frames, frame_time_str, video_time
 
     def generate_inner(self, message, dataset=None):
-        if DATASET_MODALITY(dataset) == "VIDEO":
+        if DATASET_MODALITY(dataset) == "VIDEO" and 'megabench' not in dataset.lower():
             return self.generate_inner_video(message, dataset)
         else:
             return self.generate_inner_image(message, dataset)
