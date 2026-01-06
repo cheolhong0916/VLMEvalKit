@@ -14,7 +14,7 @@
 # --- Configuration ---
 
 # The dataset to use for evaluation.
-DATASET="RoboSpatial"
+DATASET="BLINK"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
@@ -136,7 +136,7 @@ DATASET="RoboSpatial"
 #     "NVILA-Lite-2B-data-scale-exp-400k"
 #     "NVILA-Lite-2B-data-scale-exp-800k"
 # )
-
+ 
 # MODELS=(
 #     "prism-dinosiglip+7b-data-scale-exp-80k"
 #     "prism-dinosiglip+7b-data-scale-exp-400k"
@@ -144,6 +144,7 @@ DATASET="RoboSpatial"
 # )
 
 MODELS=(
+    "molmo-7B-O-0924"
     "molmo-7B-O-0924-single_prism"
     "molmo-7B-O-0924-single_refspatial"
     "molmo-7B-O-0924-single_robospatial"
@@ -156,10 +157,6 @@ MODELS=(
     "molmo-7B-O-0924-data_scale_exp_2m"
 )
 
-# MODELS=(
-#     "molmo-7B-O-0924-data_scale_exp_2m"
-# )
-
 # --- Execution ---
 
 echo "Starting sequential evaluation for ${#MODELS[@]} models on dataset: ${DATASET}"
@@ -170,13 +167,9 @@ START_TIME=$SECONDS
 for model_name in "${MODELS[@]}"; do
     echo ""
     echo "--> Starting evaluation for model: ${model_name}"
-    
-    # Run the evaluation command for the current model.
-    # CUDA_VISIBLE_DEVICES=4,5,6,7 python run.py --data "${DATASET}" --model "${model_name}"
-    CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 torchrun --nproc-per-node=6 --master_port=42100 run.py --data "${DATASET}" --model "${model_name}"
+    MASTER_PORT=$((RANDOM % 40001 + 20000))
+    CUDA_VISIBLE_DEVICES=2,3,4,5,6,7 torchrun --nproc-per-node=6 --master_port=${MASTER_PORT} run.py --data "${DATASET}" --model "${model_name}"
 
-    # Check the exit code of the last command.
-    # If it's non-zero, an error occurred.
     if [ $? -ne 0 ]; then
         echo "--> ERROR: Evaluation failed for model ${model_name}. Halting script."
         exit 1

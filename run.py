@@ -2,7 +2,7 @@ import json
 import os
 import subprocess
 from functools import partial
-
+import traceback
 
 # GET the number of GPUs on the node without importing libs like torch
 def get_gpu_list():
@@ -492,6 +492,8 @@ def main():
                         os.symlink(file_addr, link_addr)
 
             except Exception as e:
+                print(f"\n[CRITICAL ERROR] Model: {model_name}, Dataset: {dataset_name}")
+                traceback.print_exc()
                 logger.exception(f'Model {model_name} x Dataset {dataset_name} combination failed: {e}, '
                                  'skipping this combination.')
                 continue

@@ -16,13 +16,14 @@ if prismatic_project_path not in sys.path:
 try:
     # Try to import the prismatic library
     from prismatic import load
-except ImportError:
-    logging.error(
-        "Failed to import prismatic. "
-        "Please install it first: pip install git+https://github.com/TRI-ML/prismatic-vlms"
-    )
-    # Set to None to handle in __init__
-    load = None
+except: pass
+# except ImportError:
+#     logging.error(
+#         "Failed to import prismatic. "
+#         "Please install it first: pip install git+https://github.com/TRI-ML/prismatic-vlms"
+#     )
+#     # Set to None to handle in __init__
+#     load = None
 
 class PrismaticVLM(BaseModel):
     """

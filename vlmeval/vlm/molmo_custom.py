@@ -2,66 +2,70 @@ import torch
 import os
 import logging
 import numpy as np
-import string
-import pandas as pd
 from PIL import Image
 from .base import BaseModel
 from ..smp import *
 from ..dataset import DATASET_TYPE
 
-# Imports for Native/Custom model
 from olmo.config import ModelConfig
 from olmo.model import Molmo as NativeMolmoModel
-from olmo.data.model_preprocessor import MultiModalPreprocessor
+from olmo.data.model_preprocessor import MultiModalPreprocessor, load_image
 from olmo.data.data_formatter import DataFormatter
+# from olmo.tokenizer import Tokenizer
 
-# Helper for Native Model
+# [FIX] SafeDataFormatter: style=None일 때 에러 방지
 class SafeDataFormatter(DataFormatter):
     def get_system_prompt(self, style, for_inference, messages, rng=None):
         if style is None:
             style = "User"
         return super().get_system_prompt(style, for_inference, messages, rng)
 
+
+# ==============================================================================
+# [Prompt Templates]
+# ==============================================================================
 TYPE_PROMPTS = {
-    'Y/N': 'vqa2:',
-    'VQA': 'vqa2:',
-    'MCQ': 'a_okvqa_mc:',
+    'Y/N':'vqa2:',
+    'VQA':'vqa2:',
+    'MCQ':'a_okvqa_mc:',
 }
 
 DATASET_PROMPTS = {
-    'AI2D_TEST': 'ai2_diagram:',
-    'AI2D_TEST_NO_MASK': 'ai2_diagram:',
-    'COCO_VAL': 'coco_captioning:',
-    'ChartQA_TEST': 'chart_qa:',
-    'ChartQA_VAL': 'chart_qa:',
-    'DocVQA_VAL': 'doc_qa:',
-    'DocVQA_TEST': 'doc_qa:',
-    'InfoVQA_TEST': 'info_qa:',
-    'InfoVQA_VAL': 'info_qa:',
-    'OCRVQA_TEST': 'ocr_vqa:',
-    'OCRVQA_TESTCORE': 'ocr_vqa:',
-    'ScienceQA_VAL': 'science_qa:',
-    'ScienceQA_TEST': 'science_qa:',
-    'TableVQABench': 'tabwmp_da:',
-    'TextVQA_VAL': 'text_vqa:'
+    'AI2D_TEST':'ai2_diagram:',
+    'AI2D_TEST_NO_MASK':'ai2_diagram:',
+    'COCO_VAL':'coco_captioning:',
+    'ChartQA_TEST':'chart_qa:',
+    'ChartQA_VAL':'chart_qa:',
+    'DocVQA_VAL':'doc_qa:',
+    'DocVQA_TEST':'doc_qa:',
+    'InfoVQA_TEST':'info_qa:',
+    'InfoVQA_VAL':'info_qa:',
+    'OCRVQA_TEST':'ocr_vqa:',
+    'OCRVQA_TESTCORE':'ocr_vqa:',
+    'ScienceQA_VAL':'science_qa:',
+    'ScienceQA_TEST':'science_qa:',
+    'TableVQABench':'tabwmp_da:',
+    'TextVQA_VAL':'text_vqa:'
 }
 
+# ==============================================================================
+# [Main Class]
+# ==============================================================================
 class molmo(BaseModel):
 
     INSTALL_REQ = False
     INTERLEAVE = False
 
     def __init__(self, model_path='allenai/Molmo-7B-D-0924', **kwargs):
-        # Handle file path input
+        # 1. 파일 경로가 들어오면 상위 폴더로 자동 변경
         if os.path.isfile(model_path):
             logging.warning(f"File path provided: {model_path}. Using parent directory.")
             model_path = os.path.dirname(model_path)
             
         self.model_path = model_path
         self.max_crops = kwargs.get('max_crops', 36)
-        self.kwargs = kwargs
 
-        # Check for Native/Fine-tuned Checkpoint (config.yaml + model.pt)
+        # 2. Native Checkpoint(config.yaml) 확인
         config_path = os.path.join(model_path, "config.yaml")
         checkpoint_path = os.path.join(model_path, "model.pt")
 
@@ -75,7 +79,7 @@ class molmo(BaseModel):
             self._init_hf_model(model_path, **kwargs)
 
     def _init_native_model(self, model_path):
-        # Prevent PyTorch UnpicklingError
+        # PyTorch UnpicklingError 방지
         if hasattr(torch, 'load'):
             _original_load = torch.load
             def _unsafe_load_wrapper(*args, **kwargs):
@@ -94,6 +98,8 @@ class molmo(BaseModel):
         self.model.load_state_dict(state_dict)
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        # [CRITICAL FIX] Cast model to bfloat16 to match input tensors
         self.model = self.model.to(self.device, dtype=torch.bfloat16).eval()
 
         self.tokenizer = cfg.get_tokenizer()
@@ -132,7 +138,6 @@ class molmo(BaseModel):
     def _init_hf_model(self, model_path, **kwargs):
         try:
             from transformers import AutoModelForCausalLM, AutoProcessor
-            import einops
         except Exception as e:
             logging.critical('Please install transformer and einops before using molmo.')
             raise e
@@ -151,6 +156,7 @@ class molmo(BaseModel):
                 device_map="auto")
 
         self.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True, torch_dtype=torch.bfloat16)
+        self.kwargs = kwargs
         self.model_name = model_path
 
     def use_custom_prompt(self, dataset):
@@ -237,6 +243,7 @@ class molmo(BaseModel):
             prompt = f"{TYPE_PROMPTS['MCQ']} {question}"
         else:
             prompt = f"{prefix} {question}"
+
         return prompt
 
     def build_prompt_vqa(self, line, prefix=None):
@@ -255,7 +262,7 @@ class molmo(BaseModel):
             image = image.convert("RGB")
 
         if self.is_native:
-            # --- Native Molmo Inference (Custom Code) ---
+            # --- Native Molmo Inference ---
             example = {
                 "messages": [prompt],
                 "image": image
@@ -270,9 +277,11 @@ class molmo(BaseModel):
             # 3. Preprocessor
             batch = self.preprocessor(image_np, messages, is_training=False, require_image_features=True)
             
+            # [FIX] 'input_tokens' Key Mapping
             if 'input_ids' not in batch and 'input_tokens' in batch:
                 batch['input_ids'] = batch['input_tokens']
             
+            # [FIX] Convert Numpy to Tensor & unsqueeze
             def to_tensor(x):
                 if isinstance(x, np.ndarray):
                     return torch.from_numpy(x)
@@ -287,6 +296,7 @@ class molmo(BaseModel):
             image_input_idx = to_tensor(batch['image_input_idx']).unsqueeze(0).to(self.device)
 
             with torch.inference_mode():
+                # [CRITICAL FIX] Add autocast to match dtypes inside attention layers
                 with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
                     output = self.model.generate(
                         input_ids=input_ids,
@@ -298,37 +308,31 @@ class molmo(BaseModel):
                     )
             
             generated_ids = output.token_ids[0, 0]
+            # [FIX] Remove skip_special_tokens=True, use truncate_at_eos=True
             generated_text = self.tokenizer.decode(generated_ids.tolist(), truncate_at_eos=True).strip()
-
         else:
-            # --- HF Molmo Inference (Original Code) ---
-            from transformers import GenerationConfig
-            
-            # process the image and text
+            # --- HF Molmo Inference ---
             inputs = self.processor.process(
                 images=[image],
                 text=prompt,
-                images_kwargs={
-                    "max_crops": self.max_crops
-                }
+                images_kwargs={"max_crops": self.max_crops}
             )
 
-            # move inputs to the correct device and make a batch of size 1
             inputs = {k: v.to(self.model.device).unsqueeze(0) for k, v in inputs.items()}
 
-            # generate output; maximum 200 new tokens; stop generation when <|endoftext|> is generated
             with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
-                output = self.model.generate_from_batch(
-                    inputs,
-                    GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
-                    tokenizer=self.processor.tokenizer
+                output = self.model.generate(
+                    **inputs,
+                    max_new_tokens=200,
+                    stop_strings="<|endoftext|>",
+                    tokenizer=self.processor.tokenizer,
+                    do_sample=False,
+                    use_cache=True 
                 )
 
-            # only get generated tokens; decode them to text
             generated_tokens = output[0, inputs['input_ids'].size(1):]
             generated_text = self.processor.tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
 
-        # AI2D Post-processing (Common)
         if dataset in ['AI2D_TEST', 'AI2D_TEST_NO_MASK']:
             if 'ai2_diagram_no_letter' in prompt:
                 options = prompt.split('\n')[1:]

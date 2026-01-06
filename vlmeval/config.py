@@ -2056,6 +2056,16 @@ molmo_series = {
     "molmo-7B-D-0924": partial(molmo, model_path="allenai/Molmo-7B-D-0924"),
     "molmo-7B-O-0924": partial(molmo, model_path="allenai/Molmo-7B-O-0924"),
     "molmo-72B-0924": partial(molmo, model_path="allenai/Molmo-72B-0924"),
+    "molmo-7B-O-0924-single_prism": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_prism_80k/unshared"),
+    "molmo-7B-O-0924-single_refspatial": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_RefSpatial_80k/unshared"),
+    "molmo-7B-O-0924-single_robospatial": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_RoboSpatial_80k/unshared"),
+    "molmo-7B-O-0924-single_sat": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_SAT_80k/unshared"),
+    "molmo-7B-O-0924-single_spar": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_SPAR-7M_80k/unshared"),
+    "molmo-7B-O-0924-single_spatial457": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_Spatial457_23k/unshared"),
+    "molmo-7B-O-0924-data_scale_exp_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_80k/unshared"),
+    "molmo-7B-O-0924-data_scale_exp_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_400k/unshared"),
+    "molmo-7B-O-0924-data_scale_exp_800k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_800k/unshared"),
+    "molmo-7B-O-0924-data_scale_exp_2m": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_2m/unshared"),
 }
 
 kosmos_series = {
