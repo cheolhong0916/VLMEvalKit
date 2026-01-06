@@ -1,0 +1,6 @@
+openai-clip
+math-verify
+pylatexenc==2.10
+lpips
+scikit-image
+qwen_vl_utils

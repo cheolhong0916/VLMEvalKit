@@ -14,7 +14,7 @@
 # --- Configuration ---
 
 # The dataset to use for evaluation.
-DATASET="BLINK"
+DATASET="CV-Bench-2D"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
