@@ -14,10 +14,31 @@
 # --- Configuration ---
 
 # The dataset to use for evaluation.
-DATASET="ERQA"
+# DATASET="ERQA"
+# DATASET="EmbSpatialBench"
+# DATASET="BLINK"
+# DATASET="CV-Bench-2D"
+DATASET="CV-Bench-3D"
+# DATASET="RoboSpatial"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
+
+# MODELS=(
+#     # "molmo-7B-O-0924-spatial_relation_in_80k"
+#     # "molmo-7B-O-0924-non_spatial_relation_in_80k"
+#     # "molmo-7B-O-0924-spatial_relation_in_400k"
+#     # "molmo-7B-O-0924-non_spatial_relation_in_400k"
+#     "molmo-7B-O-0924-spatial_relation_in_80k_2"
+#     "molmo-7B-O-0924-non_spatial_relation_in_80k_2"    
+# )
+
+MODELS=(
+    "molmo-7B-O-0924-stage1_hard_in_80k_fixed"
+    "molmo-7B-O-0924-stage2_easy_in_80k_fixed"
+    "molmo-7B-O-0924-stage2_hard_cot_in_80k_fixed"
+)
+
 # MODELS=(
 #     "Qwen2.5-VL-3B-Instruct-2d_erqa"
 #     "Qwen2.5-VL-3B-Instruct-3d_erqa"
@@ -131,11 +152,11 @@ DATASET="ERQA"
 # )
 
 
-MODELS=(
-    "NVILA-Lite-2B-data-scale-exp-80k"
-    # "NVILA-Lite-2B-data-scale-exp-400k"
-    # "NVILA-Lite-2B-data-scale-exp-800k"
-)
+# MODELS=(
+#     "NVILA-Lite-2B-data-scale-exp-80k"
+#     # "NVILA-Lite-2B-data-scale-exp-400k"
+#     # "NVILA-Lite-2B-data-scale-exp-800k"
+# )
 
 # MODELS=(
 #     # "Qwen2.5-VL-3B-Instruct-data_scale_exp_80k"
@@ -155,8 +176,8 @@ for model_name in "${MODELS[@]}"; do
     echo "--> Starting evaluation for model: ${model_name}"
     
     # Run the evaluation command for the current model.
-    # CUDA_VISIBLE_DEVICES=0,1,2,3 python run.py --data "${DATASET}" --model "${model_name}"
-    CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc-per-node=4 --master_port=40000 run.py --data "${DATASET}" --model "${model_name}"
+    MASTER_PORT=$((RANDOM % 10001 + 20000))
+    CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc-per-node=4 --master_port=${MASTER_PORT} run.py --data "${DATASET}" --model "${model_name}"
 
     # Check the exit code of the last command.
     # If it's non-zero, an error occurred.

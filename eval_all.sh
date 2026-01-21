@@ -15,20 +15,38 @@
 
 # The dataset to use for evaluation.
 DATASET="ERQA"
+# DATASET="EmbSpatialBench"
+# DATASET="BLINK"
+# DATASET="CV-Bench-2D"
+# DATASET="CV-Bench-3D"
+# DATASET="RoboSpatial"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
 
 MODELS=(
-    "Qwen2.5-VL-3B-Instruct-2d"
-    "Qwen2.5-VL-3B-Instruct-3d"
-    "Qwen2.5-VL-3B-Instruct-dynamic"
-    "Qwen2.5-VL-3B-Instruct-perception"
-    "Qwen2.5-VL-3B-Instruct-real"
-    "Qwen2.5-VL-3B-Instruct-reasoning"
-    "Qwen2.5-VL-3B-Instruct-static"
-    "Qwen2.5-VL-3B-Instruct-synthetic"
+    "molmo-7B-O-0924-spatial_relation_in_80k"
+    "molmo-7B-O-0924-non_spatial_relation_in_80k"
 )
+
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-2d"
+#     "Qwen2.5-VL-3B-Instruct-3d"
+#     "Qwen2.5-VL-3B-Instruct-dynamic"
+#     "Qwen2.5-VL-3B-Instruct-perception"
+#     "Qwen2.5-VL-3B-Instruct-real"
+#     "Qwen2.5-VL-3B-Instruct-reasoning"
+#     "Qwen2.5-VL-3B-Instruct-static"
+#     "Qwen2.5-VL-3B-Instruct-synthetic"
+# )
+
+# MODELS=(
+#     "Qwen2.5-VL-3B-Instruct-data_scale_exp_2m"
+# )
+
+# MODELS=(
+#     "SpatialLadder-3B"
+# )
 
 # MODELS=(
 #     "Qwen2.5-VL-7B-Instruct-2d"
@@ -88,9 +106,9 @@ START_TIME=$SECONDS
 for model_name in "${MODELS[@]}"; do
     echo ""
     echo "--> Starting evaluation for model: ${model_name}"
-    
+    MASTER_PORT=$((RANDOM % 40001 + 20000))
     # Run the evaluation command for the current model.
-    torchrun --nproc-per-node=8 run.py --data "${DATASET}" --model "${model_name}"
+    torchrun --nproc-per-node=8 --master_port=${MASTER_PORT} run.py --data "${DATASET}" --model "${model_name}"
 
     # Check the exit code of the last command.
     # If it's non-zero, an error occurred.

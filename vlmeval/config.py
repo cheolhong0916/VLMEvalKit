@@ -2016,6 +2016,13 @@ qwen2vl_series = {
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
     ),
+    "Qwen2.5-VL-3B-Instruct-data_scale_exp_2m": partial(
+        Qwen2VLChat,
+        model_path="/data/shared/Qwen/mydisk/output/Qwen/Qwen2.5-VL-3B-Instruct-data_scale_exp_2m-20260109_120517",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
 
 
     # Qwen2.5-VL-7B-Instruct (0.5epoch)
@@ -2527,16 +2534,35 @@ molmo_series = {
     "molmo-7B-D-0924": partial(molmo, model_path="allenai/Molmo-7B-D-0924"),
     "molmo-7B-O-0924": partial(molmo, model_path="allenai/Molmo-7B-O-0924"),
     "molmo-72B-0924": partial(molmo, model_path="allenai/Molmo-72B-0924"),
-    "molmo-7B-O-0924-single_prism": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_prism_80k/unshared"),
-    "molmo-7B-O-0924-single_refspatial": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_RefSpatial_80k/unshared"),
-    "molmo-7B-O-0924-single_robospatial": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_RoboSpatial_80k/unshared"),
-    "molmo-7B-O-0924-single_sat": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_SAT_80k/unshared"),
-    "molmo-7B-O-0924-single_spar": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_SPAR-7M_80k/unshared"),
-    "molmo-7B-O-0924-single_spatial457": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_Spatial457_23k/unshared"),
+    "molmo-7B-O-0924-single_prism": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_prism_80k/unshared"),
+    "molmo-7B-O-0924-single_refspatial": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_RefSpatial_80k/unshared"),
+    "molmo-7B-O-0924-single_robospatial": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_RoboSpatial_80k/unshared"),
+    "molmo-7B-O-0924-single_sat": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_SAT_80k/unshared"),
+    "molmo-7B-O-0924-single_spar": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_SPAR-7M_80k/unshared"),
+    "molmo-7B-O-0924-single_spatial457": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_Spatial457_23k/unshared"),
     "molmo-7B-O-0924-data_scale_exp_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_80k/unshared"),
+    "molmo-7B-O-0924-data_scale_exp_80k_warmup_60": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_80k_warmup_60/unshared"),
     "molmo-7B-O-0924-data_scale_exp_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_400k/unshared"),
     "molmo-7B-O-0924-data_scale_exp_800k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_800k/unshared"),
     "molmo-7B-O-0924-data_scale_exp_2m": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_2m/unshared"),
+
+    # Stage1
+    "molmo-7B-O-0924-stage1_easy_in_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_easy_in_80k/unshared"),
+    "molmo-7B-O-0924-stage1_easy_in_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_easy_in_400k/unshared"),
+    "molmo-7B-O-0924-stage1_easy_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_easy_in_80k_fixed/unshared"),
+    "molmo-7B-O-0924-stage1_hard_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_hard_in_80k_fixed/unshared"),
+
+    # Stage2
+    "molmo-7B-O-0924-stage2_hard_in_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_in_80k/unshared"),
+    "molmo-7B-O-0924-stage2_hard_in_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_in_400k/unshared"),
+    "molmo-7B-O-0924-stage2_hard_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_in_80k_fixed/unshared"),
+    "molmo-7B-O-0924-stage2_easy_in_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_easy_in_80k/unshared"),
+    "molmo-7B-O-0924-stage2_easy_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_easy_in_80k_fixed/unshared"),
+
+    # Stage2 with CoT data
+    "molmo-7B-O-0924-stage2_hard_cot_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_cot_in_80k_fixed/unshared"),
+    
+    
 }
 
 kosmos_series = {
@@ -2811,7 +2837,9 @@ prismatic_series = {
     ),
 }
 
-
+spatialladder_series = {
+    "SpatialLadder-3B": partial(SpatialLadder, model_path="hongxingli/SpatialLadder-3B")
+}
 
 supported_VLM = {}
 
@@ -2831,7 +2859,7 @@ model_groups = [
     xvl_series, thyme_series, logics_series, cosmos_series, keye_series, qianfanvl_series, 
     #lfm2vl_series, 
     rbdashmm_api_series_lmdeploy, interns1_series, insight_v_series,
-    robopoint_series, roborefer_series, prismatic_series,
+    robopoint_series, roborefer_series, prismatic_series, spatialladder_series
 ]
 
 for grp in model_groups:

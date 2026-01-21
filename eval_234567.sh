@@ -14,7 +14,13 @@
 # --- Configuration ---
 
 # The dataset to use for evaluation.
-DATASET="CV-Bench-2D"
+# DATASET="ERQA"
+# DATASET="EmbSpatialBench"
+# DATASET="BLINK"
+# DATASET="CV-Bench-2D"
+# DATASET="CV-Bench-3D"
+# DATASET="RoboSpatial"
+DATASET="Spatial457"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
@@ -40,13 +46,19 @@ DATASET="CV-Bench-2D"
 #     "Qwen2.5-VL-3B-Instruct-synthetic-1epoch"
 # )
 
+
 # MODELS=(
-#     # "Qwen2.5-VL-3B-Instruct-single_prism"
-#     # "Qwen2.5-VL-3B-Instruct-single_refspatial"
-#     # "Qwen2.5-VL-3B-Instruct-single_robospatial"
-#     "Qwen2.5-VL-3B-Instruct-single_sat"
-#     "Qwen2.5-VL-3B-Instruct-single_spar7m"
-#     "Qwen2.5-VL-3B-Instruct-single_spatial457"
+#     # "Qwen2.5-VL-3B-Instruct-single_prism_80k"
+#     # "Qwen2.5-VL-3B-Instruct-single_refspatial_80k"
+#     # "Qwen2.5-VL-3B-Instruct-single_robospatial_80k"
+#     # "Qwen2.5-VL-3B-Instruct-single_sat_80k"
+#     # "Qwen2.5-VL-3B-Instruct-single_spar7m_80k"
+#     # "Qwen2.5-VL-3B-Instruct-single_spatial457_23k"
+#     # "Qwen2.5-VL-3B-Instruct-data_scale_exp_80k"
+#     # "Qwen2.5-VL-3B-Instruct-data_scale_exp_400k"
+#     # "Qwen2.5-VL-3B-Instruct-data_scale_exp_800k"
+#     "Qwen2.5-VL-3B-Instruct-data_scale_exp_2m"
+#     # "Qwen2.5-VL-3B-Instruct"
 # )
 
 # MODELS=(
@@ -135,6 +147,12 @@ DATASET="CV-Bench-2D"
 #     "NVILA-Lite-2B-data-scale-exp-80k"
 #     "NVILA-Lite-2B-data-scale-exp-400k"
 #     "NVILA-Lite-2B-data-scale-exp-800k"
+#     "NVILA-Lite-2B-single_prism_80k"
+#     "NVILA-Lite-2B-single_refspatial_80k"
+#     "NVILA-Lite-2B-single_robospatial_80k"
+#     "NVILA-Lite-2B-single_sat_80k"
+#     "NVILA-Lite-2B-single_spar7m_80k"
+#     "NVILA-Lite-2B-single_spatial457_23k"
 # )
  
 # MODELS=(

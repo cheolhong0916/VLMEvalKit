@@ -3,4 +3,9 @@ math-verify
 pylatexenc==2.10
 lpips
 scikit-image
+scikit-learn
 qwen_vl_utils
+torchmetrics
+omegaconf>=2.4.0.dev4
+boto3
+cached_path

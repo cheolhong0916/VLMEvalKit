@@ -120,3 +120,4 @@ from .insight_v import InsightV
 from .robopoint import RoboPoint
 from .roborefer import RoboRefer
 from .prismatic_vlm import PrismaticVLM
+from .spatialladder import SpatialLadder

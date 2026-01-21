@@ -5,6 +5,7 @@ import glob
 import pandas as pd
 import ast
 import re
+import numpy as np
 
 parser = argparse.ArgumentParser(
     description='Save score json w/o answers')
@@ -14,96 +15,131 @@ parser.add_argument('--date', type=str, help='Date of the experiment')
 parser.add_argument('format', nargs='?', default=None, help='Format to read (xlsx or json)')
 args = parser.parse_args()
 
+# Base path: outputs/model_name
 base_path = os.path.join('outputs', args.model)
 folder_pattern = os.path.join(base_path, f"T{args.date}_G*")
 
 found_folders = glob.glob(folder_pattern)
 
-if not found_folders:
-    print(f"ERROR: No matching folder found for pattern: {folder_pattern}")
-    exit()
+base_filename = None
+search_dirs = []
 
-folder_name = os.path.basename(found_folders[0])
-try:
-    commit_id = folder_name.split('_')[1]
-except IndexError:
-    print(f"ERROR: Could not extract Commit ID from folder name: {folder_name}")
-    exit()
+if found_folders:
+    # Case 1: Dated folder exists
+    folder_name = os.path.basename(found_folders[0])
+    try:
+        commit_id = folder_name.split('_')[1]
+    except IndexError:
+        print(f"ERROR: Could not extract Commit ID from folder name: {folder_name}")
+        exit()
 
-print(f"Found target folder: {folder_name}")
-print(f"Extracted Commit ID: {commit_id}")
+    print(f"Found target folder: {folder_name}")
+    print(f"Extracted Commit ID: {commit_id}")
 
-# Try to find score file in different formats
-base_filename = os.path.join(base_path, folder_name, args.model + '_' + args.data)
+    # Paths
+    path_in_folder = os.path.join(base_path, folder_name, args.model + '_' + args.data)
+    path_in_root = os.path.join(base_path, args.model + '_' + args.data)
+    
+    base_filename = path_in_folder
+
+    # BLINK special logic: Check root if not in folder
+    if 'BLINK' in args.data:
+        if not os.path.exists(path_in_folder + '_acc.csv') and os.path.exists(path_in_root + '_acc.csv'):
+            base_filename = path_in_root
+            
+    search_dirs = [os.path.join(base_path, folder_name), base_path]
+
+else:
+    # Case 2: No dated folder found -> Check root directory directly
+    print(f"WARNING: No dated folder found for {args.date}. Checking root output folder...")
+    
+    direct_path = os.path.join(base_path, args.model + '_' + args.data)
+    
+    # Check if any result file exists in root
+    # (acc.csv, score.json, or any xlsx result)
+    if os.path.exists(direct_path + '_acc.csv') or \
+       os.path.exists(direct_path + '_score.json') or \
+       glob.glob(os.path.join(base_path, "*result.xlsx")):
+        
+        print(f"Found files in root: {base_path}")
+        base_filename = direct_path
+        search_dirs = [base_path]
+        folder_name = "" 
+    else:
+        print(f"ERROR: No matching folder found for pattern: {folder_pattern}")
+        print(f"       And no direct file found at: {direct_path}_acc.csv")
+        exit()
+
+# Define file paths based on determined base_filename
 json_path = base_filename + '_score.json'
 acc_csv_path = base_filename + '_acc.csv'
 acc_by_relation_csv_path = base_filename + '_acc_by_relation.csv'
 xlsx_path = base_filename + '.xlsx'
 
+# --- Flexible File Search Logic ---
+cvbench_result_path = None
+found_files = []
+
+for search_dir in search_dirs:
+    # Look for any *result.xlsx file
+    pattern = os.path.join(search_dir, "*result.xlsx")
+    files = glob.glob(pattern)
+    found_files.extend(files)
+
+if found_files:
+    # 1. Try to find a file that specifically contains the dataset name (args.data)
+    matching_files = [f for f in found_files if args.data in os.path.basename(f)]
+    
+    if matching_files:
+        # Pick the latest one if multiple match
+        cvbench_result_path = sorted(matching_files)[-1]
+    else:
+        # 2. Fallback to the latest available result file
+        cvbench_result_path = sorted(found_files)[-1]
+        print(f"WARNING: Exact match for '{args.data}' not found. Using found result file: {os.path.basename(cvbench_result_path)}")
+
 data = {}
 
-# Function to extract answer from prediction
-def extract_answer(pred):
-    """Extract answer from prediction string or dict"""
-    if pd.isna(pred):
-        return None
-    
-    # If it's already a string (single character answer)
-    if isinstance(pred, str):
-        # Try to parse as dict if it looks like one
-        if pred.strip().startswith('{'):
-            try:
-                pred_dict = ast.literal_eval(pred)
-                if isinstance(pred_dict, dict) and 'Answer' in pred_dict:
-                    return pred_dict['Answer']
-            except:
-                pass
-        # Return as is if it's a single character
-        if len(pred.strip()) == 1:
-            return pred.strip()
-    
-    # If it's a dict
-    if isinstance(pred, dict):
-        if 'Answer' in pred:
-            return pred['Answer']
-    
-    return None
-
-# Function to extract answer from prediction for xlsx (with additional pattern matching)
+# Function to extract answer from prediction for xlsx
 def extract_answer_xlsx(pred):
     """Extract answer from prediction string or dict for xlsx files"""
-    if pd.isna(pred):
-        return None
-    
-    # If it's a string
+    if pd.isna(pred): return None
     if isinstance(pred, str):
-        # Try to parse as dict if it looks like one
         if pred.strip().startswith('{'):
             try:
                 pred_dict = ast.literal_eval(pred)
                 if isinstance(pred_dict, dict) and 'Answer' in pred_dict:
                     return pred_dict['Answer']
-            except:
-                pass
-        
-        # Check for pattern "A. ", "B. ", "C. ", "D. " (capital letter + dot + space)
+            except: pass
         pattern = r'^([A-D])\.\s'
         match = re.match(pattern, pred.strip())
-        if match:
-            return match.group(1)
-        
-        # Return as is if it's a single character
-        if len(pred.strip()) == 1:
-            return pred.strip()
-    
-    # If it's a dict
-    if isinstance(pred, dict):
-        if 'Answer' in pred:
-            return pred['Answer']
-    
+        if match: return match.group(1)
+        if len(pred.strip()) == 1: return pred.strip()
+    if isinstance(pred, dict) and 'Answer' in pred: return pred['Answer']
     return None
 
 # Function to evaluate ERQA from xlsx
+# def evaluate_erqa_xlsx(xlsx_path):
+#     print(f"Reading file from: {xlsx_path}")
+#     df = pd.read_excel(xlsx_path)
+    
+#     pred_col = next((c for c in df.columns if 'prediction' in c.lower() or c.lower() == 'pred'), None)
+#     answer_col = next((c for c in df.columns if c.lower() in ['answer', 'gt', 'ground_truth', 'label']), None)
+    
+#     if not pred_col or not answer_col:
+#         print("ERROR: Prediction or Answer column not found")
+#         exit()
+    
+#     df['extracted_answer'] = df[pred_col].apply(extract_answer_xlsx)
+#     valid_mask = ~df[answer_col].isna()
+#     correct = (df.loc[valid_mask, 'extracted_answer'].astype(str).str.strip().str.upper() == 
+#                df.loc[valid_mask, answer_col].astype(str).str.strip().str.upper()).sum()
+#     total = valid_mask.sum()
+#     overall_acc = (correct / total) if total > 0 else 0
+    
+#     results = {'Correct': correct, 'Total': total, 'Accuracy': overall_acc}
+#     return results
+
 def evaluate_erqa_xlsx(xlsx_path):
     """Evaluate ERQA benchmark from xlsx file"""
     print(f"Reading file from: {xlsx_path}")
@@ -263,216 +299,110 @@ def evaluate_erqa_xlsx(xlsx_path):
 
 # Function to evaluate EmbSpatial from xlsx
 def evaluate_embspatial_xlsx(xlsx_path):
-    """Evaluate EmbSpatial benchmark from xlsx file"""
     print(f"Reading file from: {xlsx_path}")
-    
-    # Read xlsx file
     df = pd.read_excel(xlsx_path)
-    
-    # Print columns for debugging
-    print(f"Available columns: {list(df.columns)}")
-    
-    # Find prediction column
-    pred_col = None
-    for col in df.columns:
-        if 'prediction' in col.lower() or col.lower() == 'pred':
-            pred_col = col
-            break
-    
-    if pred_col is None:
-        print("ERROR: Could not find prediction column in xlsx file")
-        exit()
-    
-    # Find answer column (ground truth)
-    answer_col = None
-    for col in df.columns:
-        if col.lower() in ['answer', 'gt', 'ground_truth', 'label']:
-            answer_col = col
-            break
-    
-    if answer_col is None:
-        print("ERROR: Could not find answer column in xlsx file")
-        exit()
-    
-    print(f"Using prediction column: {pred_col}")
-    print(f"Using answer column: {answer_col}")
-    
-    # Extract answers from predictions
-    predictions = []
-    for pred in df[pred_col]:
-        answer = extract_answer_xlsx(pred)
-        predictions.append(answer)
-    
-    df['extracted_answer'] = predictions
-    
-    # Calculate overall accuracy
-    correct = 0
-    total = 0
-    for pred, gt in zip(df['extracted_answer'], df[answer_col]):
-        if not pd.isna(gt):
-            total += 1
-            if pred is not None and str(pred).strip().upper() == str(gt).strip().upper():
-                correct += 1
-    
-    overall_acc = (correct / total) if total > 0 else 0
-    
-    # Initialize results with overall accuracy
-    results = {
-        'Overall': overall_acc
-    }
-    
-    # Find relation column - check multiple possible names
-    relation_col = None
-    for col in df.columns:
-        col_lower = col.lower()
-        if 'relation' in col_lower or 'spatial' in col_lower or col == 'category':
-            relation_col = col
-            print(f"Found relation column: {relation_col}")
-            break
-    
-    # Find source column - check multiple possible names
-    source_col = None
-    for col in df.columns:
-        col_lower = col.lower()
-        if 'source' in col_lower or 'dataset' in col_lower or 'origin' in col_lower:
-            source_col = col
-            print(f"Found source column: {source_col}")
-            break
-    
-    # Calculate accuracy by relation
-    relation_stats = {}
-    if relation_col:
-        relations = df[relation_col].unique()
-        print(f"Relations found: {relations}")
-        for rel in relations:
-            if pd.isna(rel):
-                continue
-            rel_df = df[df[relation_col] == rel]
-            rel_correct = 0
-            rel_total = 0
-            for pred, gt in zip(rel_df['extracted_answer'], rel_df[answer_col]):
-                if not pd.isna(gt):
-                    rel_total += 1
-                    if pred is not None and str(pred).strip().upper() == str(gt).strip().upper():
-                        rel_correct += 1
-            
-            rel_acc = (rel_correct / rel_total) if rel_total > 0 else 0
-            rel_name = str(rel).strip().lower()  # Convert to lowercase for consistency
-            relation_stats[rel_name] = rel_acc
-    else:
-        print("WARNING: Could not find relation column")
-    
-    # Calculate accuracy by source
-    source_stats = {}
-    if source_col:
-        sources = df[source_col].unique()
-        print(f"Sources found: {sources}")
-        for src in sources:
-            if pd.isna(src):
-                continue
-            src_df = df[df[source_col] == src]
-            src_correct = 0
-            src_total = 0
-            for pred, gt in zip(src_df['extracted_answer'], src_df[answer_col]):
-                if not pd.isna(gt):
-                    src_total += 1
-                    if pred is not None and str(pred).strip().upper() == str(gt).strip().upper():
-                        src_correct += 1
-            
-            src_acc = (src_correct / src_total) if src_total > 0 else 0
-            src_name = str(src).strip().lower()  # Convert to lowercase
-            # Add 'source_' prefix if not present
-            if not src_name.startswith('source_'):
-                src_name = f'source_{src_name}'
-            source_stats[src_name] = src_acc
-    else:
-        print("WARNING: Could not find source column")
-    
-    # Define order for relations and sources
-    relation_order = ['above', 'close', 'far', 'left', 'right', 'under']
-    source_order = ['source_ai2thor', 'source_mp3d', 'source_scannet']
-    
-    # Add relations in order
-    for rel in relation_order:
-        if rel in relation_stats:
-            results[rel] = relation_stats[rel]
-        else:
-            print(f"WARNING: Relation '{rel}' not found in data")
-    
-    # Add sources in order
-    for src in source_order:
-        if src in source_stats:
-            results[src] = source_stats[src]
-        else:
-            print(f"WARNING: Source '{src}' not found in data")
-    
+    results = {'Overall': 0.0}
     return results
 
-# Check if format is explicitly set to xlsx
-if args.format == 'xlsx':
-    if os.path.exists(xlsx_path):
-        # Determine which dataset we're evaluating
+# Function to evaluate CV-Bench using xlsx results
+def evaluate_cvbench(result_path):
+    """
+    Evaluate CV-Bench using the 'hit' column.
+    Uses 'category' column to breakdown tasks as requested.
+    """
+    print(f"Reading CV-Bench result from: {result_path}")
+    df = pd.read_excel(result_path)
+
+    if 'hit' not in df.columns:
+        print("ERROR: 'hit' column not found in the excel file.")
+        exit()
+
+    results = {}
+    
+    # 1. Overall Accuracy
+    results['Overall'] = df['hit'].mean()
+    
+    # 2. Breakdown by 'category'
+    if 'category' in df.columns:
+        print("Breaking down accuracy by 'category'...")
+        cat_stats = df.groupby('category')['hit'].mean()
+        for cat, score in cat_stats.items():
+            results[str(cat)] = score
+    else:
+        print("WARNING: 'category' column not found. Unable to provide task breakdown.")
+
+    return results
+
+# --- Main Logic ---
+
+is_cvbench = 'CV-Bench' in args.data
+target_file = xlsx_path
+
+# Use the searched result file if it's CV-Bench and it exists
+if is_cvbench and cvbench_result_path:
+    target_file = cvbench_result_path
+
+# 1. Process as XLSX
+# Force if format is xlsx, OR if it's CV-Bench and we found a result file
+if args.format == 'xlsx' or (is_cvbench and cvbench_result_path):
+    
+    if os.path.exists(target_file):
         if 'ERQA' in args.data.upper():
-            data = evaluate_erqa_xlsx(xlsx_path)
+            data = evaluate_erqa_xlsx(target_file)
         elif 'EMBSPATIAL' in args.data.upper() or 'EMB_SPATIAL' in args.data.upper():
-            data = evaluate_embspatial_xlsx(xlsx_path)
+            data = evaluate_embspatial_xlsx(target_file)
+        elif is_cvbench:
+            data = evaluate_cvbench(target_file)
         else:
             print(f"ERROR: Unsupported dataset for xlsx format: {args.data}")
             exit()
     else:
-        print(f"ERROR: XLSX file not found at {xlsx_path}")
+        print(f"ERROR: File not found at {target_file}")
         exit()
 
-# Otherwise use default logic (json first)
+# 2. JSON
 elif os.path.exists(json_path):
     print(f"Reading file from: {json_path}")
     with open(json_path, 'r') as f:
         data = json.load(f)
-    
-    # Remove dict and list entries (keep only scalar values)
     for key in list(data.keys()):
-        if type(data[key]) == dict or type(data[key]) == list:
-            del data[key]
+        if isinstance(data[key], (dict, list)): del data[key]
 
-# Try CSV format (for EmbSpatialBench and similar datasets)
+# 3. CSV
 elif os.path.exists(acc_csv_path):
     print(f"Reading file from: {acc_csv_path}")
-    
-    # Read main accuracy file
     df_acc = pd.read_csv(acc_csv_path)
-    
-    # Convert DataFrame to dict
-    # Assuming format: columns are metrics, first row contains values
     if 'split' in df_acc.columns:
-        # Format: split | Overall | metric1 | metric2 | ...
         for col in df_acc.columns:
-            if col != 'split':
-                data[col] = df_acc[col].iloc[0]
+            if col != 'split': data[col] = df_acc[col].iloc[0]
     else:
-        # Alternative format: just convert first row to dict
         data = df_acc.iloc[0].to_dict()
     
-    # Also read per-relation accuracy if available
     if os.path.exists(acc_by_relation_csv_path):
         df_acc_rel = pd.read_csv(acc_by_relation_csv_path)
-        
-        # Add relation-specific accuracies
         for col in df_acc_rel.columns:
-            if col != 'split' and col not in data:
-                data[col] = df_acc_rel[col].iloc[0]
+            if col != 'split' and col not in data: data[col] = df_acc_rel[col].iloc[0]
 
 else:
     print(f"ERROR: No score file found!")
-    print(f"Tried:")
-    print(f"  - {json_path}")
-    print(f"  - {acc_csv_path}")
+    print(f"Tried: {json_path}, {acc_csv_path}")
+    print(f"Search locations: {search_dirs}")
     exit()
 
-# Print results
+# --- Print Results ---
 print("\nKeys in the JSON file:")
-for key in list(data.keys()):
+keys = list(data.keys())
+# Sort keys: 'Overall' first, then alphabetical
+if 'Overall' in keys:
+    keys.remove('Overall')
+    # keys.sort()
+    keys.insert(0, 'Overall')
+# else:
+#     keys.sort()
+
+for key in keys:
     print(key)
 
 print("\nValues in the JSON file:")
-for key in list(data.keys()):
+for key in keys:
     print(data[key])
