@@ -2917,3 +2917,20 @@ class TopViewRS(ImageMCQDataset):
         score_file = eval_file.replace(f'.{suffix}', '_acc.csv')
         dump(acc, score_file)
         return acc
+
+
+class BLINK_Spatial(ImageMCQDataset):
+    """BLINK subset: only Relative_Depth and Spatial_Relation tasks."""
+
+    DATASET_URL = {
+        'BLINK_Spatial': 'https://opencompass.openxlab.space/utils/VLMEval/BLINK.tsv',
+    }
+    DATASET_MD5 = {
+        'BLINK_Spatial': '3b6649b6a662184ea046908e5506260e',
+    }
+
+    BLINK_SPATIAL_CATEGORIES = {'Relative_Depth', 'Spatial_Relation'}
+
+    def load_data(self, dataset):
+        data = super().load_data('BLINK')
+        return data[data['category'].isin(self.BLINK_SPATIAL_CATEGORIES)].reset_index(drop=True)

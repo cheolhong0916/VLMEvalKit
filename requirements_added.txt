@@ -9,3 +9,5 @@ torchmetrics
 omegaconf>=2.4.0.dev4
 boto3
 cached_path
+peft
+loguru

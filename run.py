@@ -3,6 +3,7 @@ import os
 import subprocess
 from functools import partial
 import traceback
+import datetime
 
 # GET the number of GPUs on the node without importing libs like torch
 def get_gpu_list():
@@ -241,12 +242,15 @@ def main():
                     logger.warning(f'FWD_API is set, will use class `GPT4V` for {m}')
 
     import torch.distributed as dist
-    # if WORLD_SIZE > 1:
-    #     import torch.distributed as dist
-    #     dist.init_process_group(
-    #         backend='nccl',
-    #         timeout=datetime.timedelta(seconds=int(os.environ.get('DIST_TIMEOUT', 3600)))
-    #     )
+    # Reinitialize process group with longer timeout (torchrun uses 10min default)
+    if WORLD_SIZE > 1:
+        timeout_seconds = int(os.environ.get('DIST_TIMEOUT', 10800))  # 3 hours default
+        if dist.is_initialized():
+            dist.destroy_process_group()
+        dist.init_process_group(
+            backend='nccl',
+            timeout=datetime.timedelta(seconds=timeout_seconds)
+        )
 
     for _, model_name in enumerate(args.model):
         model = None

@@ -178,13 +178,30 @@ class ERQA(ImageBaseDataset):
 
             # Get ground truth answer and prediction
             gt_answer = str(line['answer']).replace(".", "").strip().lower()
+            # ==========================================================================
             prediction = str(
                 line['prediction']).replace(
                 ".",
                 "").strip().lower()
+            # ==========================================================================
+            # # Modified logic for CoT (<think> token handling)
+            # raw_prediction = str(line['prediction'])
+            
+            # # Check if prediction contains the closing think tag
+            # if "</think>" in raw_prediction:
+            #     # Split by tag and take the part after it
+            #     prediction_content = raw_prediction.split("</think>")[-1]
+            # else:
+            #     # If no tag, use the whole string
+            #     prediction_content = raw_prediction
 
-            # Check correctness - exact match after normalization
-            is_correct = gt_answer == prediction
+            # # Clean the extracted prediction (remove dots, whitespace, lowercase)
+            # prediction = prediction_content.replace(".", "").strip().lower()
+            # # ==========================================================================
+
+            # # Check correctness - exact match after normalization
+            # print(i, ": ", "gt: ", gt_answer, "prediction: ", prediction)
+            # is_correct = gt_answer == prediction
 
             # Update counters
             total_examples += 1

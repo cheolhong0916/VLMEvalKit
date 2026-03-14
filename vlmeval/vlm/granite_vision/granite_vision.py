@@ -8,7 +8,11 @@ from ...smp import *
 from ...dataset import DATASET_TYPE, DATASET_MODALITY
 import copy
 import requests
-from transformers import AutoModelForVision2Seq, AutoProcessor
+try:
+    from transformers import AutoModelForVision2Seq, AutoProcessor
+except ImportError:
+    # transformers >= 4.50 renamed AutoModelForVision2Seq to AutoModelForImageTextToText
+    from transformers import AutoModelForImageTextToText as AutoModelForVision2Seq, AutoProcessor
 
 flash_attn_flag = False
 try:

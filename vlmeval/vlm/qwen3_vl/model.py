@@ -105,7 +105,7 @@ class Qwen3VLChat(Qwen3VLPromptMixin, BaseModel):
                 raise err
             self.processor = Qwen3OmniMoeProcessor.from_pretrained(model_path)
         else:
-            self.processor = AutoProcessor.from_pretrained(model_path)
+            self.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
 
         gpu_mems = get_gpu_memory()
         max_gpu_mem = max(gpu_mems) if gpu_mems != [] else -1
@@ -152,7 +152,8 @@ class Qwen3VLChat(Qwen3VLPromptMixin, BaseModel):
                 )
             else:
                 self.model = AutoModelForImageTextToText.from_pretrained(
-                    model_path, torch_dtype='auto', device_map='auto', attn_implementation='flash_attention_2'
+                    model_path, torch_dtype='auto', device_map='auto', attn_implementation='flash_attention_2',
+                    trust_remote_code=True,
                 )
             self.model.eval()
 

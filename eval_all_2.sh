@@ -99,9 +99,10 @@ DATASET="BLINK"
 
 MODELS=(
     "NVILA-Lite-2B"
-    # "NVILA-Lite-2B-data-scale-exp-80k"
-    # "NVILA-Lite-2B-data-scale-exp-400k"
-    # "NVILA-Lite-2B-data-scale-exp-800k"
+    "NVILA-Lite-2B-data-scale-exp-80k"
+    "NVILA-Lite-2B-data-scale-exp-400k"
+    "NVILA-Lite-2B-data-scale-exp-800k"
+    # "NVILA-Lite-2B-data-scale-exp-2m"
     # "NVILA-Lite-2B-single_prism_80k"
     # "NVILA-Lite-2B-single_refspatial_80k"
     # "NVILA-Lite-2B-single_robospatial_80k"
@@ -113,9 +114,7 @@ MODELS=(
 # MODELS=(
 #     "RoboRefer-2B-SFT"
 # )
-MODELS=(
-    Qwen3-VL-235B-A22B-Instruct
-)
+
 # --- Execution ---
 
 echo "Starting sequential evaluation for ${#MODELS[@]} models on dataset: ${DATASET}"

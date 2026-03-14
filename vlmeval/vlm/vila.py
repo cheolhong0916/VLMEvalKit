@@ -113,6 +113,101 @@ class VILA(BaseModel):
         return output
 
 
+class NVILA_FAST(BaseModel):
+    """
+    Fast NVILA implementation that loads model once and keeps it in memory.
+    Uses the same high-level API as vila-infer CLI but without subprocess overhead.
+    Much faster than NVILA which spawns a subprocess for each inference.
+    """
+    INSTALL_REQ = True
+    INTERLEAVE = True
+
+    def __init__(self,
+                 model_path='Efficient-Large-Model/NVILA-Lite-2B',
+                 **kwargs):
+        import sys
+
+        # Save original state
+        original_sys_path = sys.path.copy()
+
+        # Remove any paths containing 'RoboRefer' to avoid import conflicts
+        sys.path = [p for p in sys.path if 'RoboRefer' not in p]
+
+        # CRITICAL: Remove any cached llava modules that might be from RoboRefer
+        # This is safe because each torchrun process has its own isolated sys.modules
+        modules_to_remove = [key for key in list(sys.modules.keys()) if 'llava' in key.lower()]
+        removed_modules = {}
+        for mod in modules_to_remove:
+            removed_modules[mod] = sys.modules.pop(mod)
+
+        try:
+            import llava
+            from llava.media import Image as LLaVAImage
+            from llava import conversation as clib
+            from transformers import GenerationConfig
+        except Exception as err:
+            # Restore everything before raising
+            sys.path = original_sys_path
+            # Restore removed modules on failure
+            for mod, module in removed_modules.items():
+                sys.modules[mod] = module
+            logging.critical('Please install VILA/NVILA before using NVILA_FAST')
+            logging.critical('Please install from https://github.com/NVlabs/VILA')
+            logging.critical('Make sure RoboRefer llava is not conflicting')
+            raise err
+
+        # Restore sys.path (keep the newly imported llava modules)
+        sys.path = original_sys_path
+
+        self.model_path = model_path
+        self.LLaVAImage = LLaVAImage
+        self.clib = clib
+        self.GenerationConfig = GenerationConfig
+
+        assert osp.exists(model_path) or len(model_path.split('/')) == 2
+
+        try:
+            # Use the high-level llava.load() API - same as vila-infer CLI
+            self.model = llava.load(model_path, model_base=None)
+            logging.info(f'NVILA_FAST: Model loaded from {model_path}')
+        except Exception as err:
+            logging.critical(f'Error loading NVILA model: {err}')
+            raise err
+
+        # Create optimized generation config for faster inference
+        self.generation_config = GenerationConfig(
+            max_new_tokens=1024,
+            do_sample=False,
+            temperature=0,
+            top_p=None,
+            num_beams=1,
+            use_cache=True,
+        )
+        logging.info(f'NVILA_FAST: Using generation config with max_new_tokens=1024')
+
+        self.kwargs = kwargs
+
+    def use_custom_prompt(self, dataset):
+        assert dataset is not None
+        return False
+
+    def generate_inner(self, message, dataset=None):
+        # Build prompt using NVILA's expected format: [Image(...), Image(...), text]
+        prompt = []
+
+        for msg in message:
+            if msg['type'] == 'image':
+                # Use NVILA's Image class for proper media handling
+                prompt.append(self.LLaVAImage(msg['value']))
+            elif msg['type'] == 'text':
+                prompt.append(msg['value'])
+
+        # Generate using the high-level API with optimized generation config
+        response = self.model.generate_content(prompt, generation_config=self.generation_config)
+
+        return response.strip() if response else ""
+
+
 class NVILA(BaseModel):
     INSTALL_REQ = True
     INTERLEAVE = True
@@ -123,6 +218,49 @@ class NVILA(BaseModel):
         self.model_path = model_path
         self.model_name = model_path.split('/')[-1]
         self.kwargs = kwargs
+        self.work_dir = None
+        self.raw_log_file = None
+        self._log_counter = 0
+
+    def set_work_dir(self, work_dir, dataset_name=None):
+        """Set the working directory for saving raw output logs."""
+        self.work_dir = work_dir
+        self._log_counter = 0  # Reset counter for each dataset
+        if work_dir:
+            # Include dataset name in log filename to avoid mixing logs
+            if dataset_name:
+                self.raw_log_file = osp.join(work_dir, f'{self.model_name}_{dataset_name}_raw_output.log')
+            else:
+                self.raw_log_file = osp.join(work_dir, f'{self.model_name}_raw_output.log')
+            # Create new log file for this dataset
+            with open(self.raw_log_file, 'w') as f:
+                f.write(f"=== NVILA Raw Output Log ===\n")
+                f.write(f"Model: {self.model_path}\n")
+                f.write(f"Dataset: {dataset_name or 'unknown'}\n")
+                f.write(f"Started: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write("=" * 50 + "\n\n")
+
+    def _log_raw_output(self, idx, cmd, stdout, stderr, filtered_response):
+        """Log raw subprocess output to file for debugging."""
+        if not self.raw_log_file:
+            return
+
+        try:
+            with open(self.raw_log_file, 'a') as f:
+                f.write(f"\n{'='*60}\n")
+                f.write(f"[Entry {self._log_counter}] Index: {idx}\n")
+                f.write(f"Time: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write(f"Command: {' '.join(cmd)}\n")
+                f.write(f"\n--- RAW STDOUT ---\n")
+                f.write(stdout if stdout else "(empty)")
+                f.write(f"\n\n--- RAW STDERR ---\n")
+                f.write(stderr if stderr else "(empty)")
+                f.write(f"\n\n--- FILTERED RESPONSE ---\n")
+                f.write(filtered_response if filtered_response else "(empty)")
+                f.write(f"\n{'='*60}\n")
+            self._log_counter += 1
+        except Exception as e:
+            logging.warning(f"Failed to write raw output log: {e}")
 
     def use_custom_prompt(self, dataset):
         assert dataset is not None
@@ -208,13 +346,22 @@ class NVILA(BaseModel):
             # Run the command
             result = subprocess.run(cmd, capture_output=True, text=True)
 
+            # Process the plain text output to filter log messages
+            filtered_response = self._extract_model_response(result.stdout)
+
+            # Log raw output for debugging
+            self._log_raw_output(
+                idx=self._log_counter,
+                cmd=cmd,
+                stdout=result.stdout,
+                stderr=result.stderr,
+                filtered_response=filtered_response
+            )
+
             if result.returncode != 0:
                 raise Exception(f"vila-infer command failed: {result.stderr}")
 
-            # Process the plain text output to filter log messages
-            # TODO: This is a temporary workaround. A more elegant solution is needed
-            # to robustly filter out log messages from the model output.
-            return self._extract_model_response(result.stdout)
+            return filtered_response
 
         finally:
             # Clean up the temporary directory and its contents

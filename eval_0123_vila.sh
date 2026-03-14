@@ -18,9 +18,9 @@
 # DATASET="EmbSpatialBench"
 # DATASET="BLINK"
 # DATASET="CV-Bench-2D"
-# DATASET="CV-Bench-3D"
+DATASET="CV-Bench-3D"
 # DATASET="RoboSpatial"
-DATASET="Spatial457"
+# DATASET="Spatial457"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
@@ -174,15 +174,16 @@ DATASET="Spatial457"
 
 
 MODELS=(
-    "NVILA-Lite-2B"
-    "NVILA-Lite-2B-data-scale-exp-80k"
-    "NVILA-Lite-2B-data-scale-exp-400k"
-    "NVILA-Lite-2B-data-scale-exp-800k"
-    "NVILA-Lite-2B-single_prism_80k"
-    "NVILA-Lite-2B-single_refspatial_80k"
-    "NVILA-Lite-2B-single_robospatial_80k"
-    "NVILA-Lite-2B-single_sat_80k"
-    "NVILA-Lite-2B-single_spar7m_80k"
+    # "NVILA-Lite-2B"
+    "NVILA-Lite-2B-data-scale-exp-80k-refspatial"
+    "NVILA-Lite-2B-data-scale-exp-400k-refspatial"
+    "NVILA-Lite-2B-data-scale-exp-800k-refspatial"
+    "NVILA-Lite-2B-data-scale-exp-2m-refspatial"
+    # "NVILA-Lite-2B-single_prism_80k"
+    # "NVILA-Lite-2B-single_refspatial_80k"
+    # "NVILA-Lite-2B-single_robospatial_80k"
+    # "NVILA-Lite-2B-single_sat_80k"
+    # "NVILA-Lite-2B-single_spar7m_80k"
     # "NVILA-Lite-2B-single_spatial457_23k"
 )
 
@@ -193,10 +194,10 @@ MODELS=(
 # )
 
 
-MODELS=(
-    RoboRefer-2B-SFT
-    RoboRefer-8B-SFT
-)
+# MODELS=(
+#     RoboRefer-2B-SFT
+#     RoboRefer-8B-SFT
+# )
 # --- Execution ---
 
 echo "Starting sequential evaluation for ${#MODELS[@]} models on dataset: ${DATASET}"

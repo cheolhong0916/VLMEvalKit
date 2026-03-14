@@ -71,7 +71,7 @@ from .video_llm import (
     VideoChat2_HD,
     PLLaVA,
 )
-from .vila import VILA, NVILA
+from .vila import VILA, NVILA, NVILA_FAST
 from .ovis import Ovis, Ovis1_6, Ovis1_6_Plus, Ovis2, OvisU1, Ovis2_5
 from .mantis import Mantis
 from .mixsense import LLama3Mixsense
@@ -85,6 +85,7 @@ from .pixtral import Pixtral
 from .llama_vision import llama_vision
 from .llama4 import llama4
 from .molmo import molmo
+from .molmo2 import Molmo2Chat
 from .points import POINTS, POINTSV15
 from .nvlm import NVLM
 from .vintern_chat import VinternChat
@@ -120,4 +121,6 @@ from .insight_v import InsightV
 from .robopoint import RoboPoint
 from .roborefer import RoboRefer
 from .prismatic_vlm import PrismaticVLM
-from .spatialladder import SpatialLadder
+try:
+    from .spatialladder import SpatialLadder
+except: pass

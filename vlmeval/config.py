@@ -1236,54 +1236,81 @@ qwen3vl_series = {
         top_p=0.95,
         top_k=20
     ),
-    "Qwen3-VL-8B-Instruct": partial(
+    "Qwen3-VL-2B-Instruct": partial(
         Qwen3VLChat,
-        model_path="Qwen/Qwen3-VL-8B-Instruct",
+        model_path="Qwen/Qwen3-VL-2B-Instruct",
+        min_pixels=1280 * 32 * 32,
+        max_pixels=16384 * 32 * 32,
         use_custom_prompt=False,
-        use_vllm=True,
-        temperature=0.7, 
-        max_new_tokens=16384,
-        repetition_penalty=1.0,
-        presence_penalty=1.5,
-        top_p=0.8,
-        top_k=20
     ),
     "Qwen3-VL-4B-Instruct": partial(
         Qwen3VLChat,
         model_path="Qwen/Qwen3-VL-4B-Instruct",
+        min_pixels=1280 * 32 * 32,
+        max_pixels=16384 * 32 * 32,
         use_custom_prompt=False,
-        use_vllm=True,
-        temperature=0.7, 
-        max_new_tokens=16384,
-        repetition_penalty=1.0,
-        presence_penalty=1.5,
-        top_p=0.8,
-        top_k=20
     ),
-    "Qwen3-VL-2B-Instruct": partial(
+    "Qwen3-VL-8B-Instruct": partial(
         Qwen3VLChat,
-        model_path="Qwen/Qwen3-VL-2B-Instruct",
+        model_path="Qwen/Qwen3-VL-8B-Instruct",
+        min_pixels=1280 * 32 * 32,
+        max_pixels=16384 * 32 * 32,
         use_custom_prompt=False,
-        use_vllm=True,
-        temperature=0.7, 
-        max_new_tokens=16384,
-        repetition_penalty=1.0,
-        presence_penalty=1.5,
-        top_p=0.8,
-        top_k=20
     ),
     "Qwen3-VL-32B-Instruct": partial(
         Qwen3VLChat,
         model_path="Qwen/Qwen3-VL-32B-Instruct",
+        min_pixels=1280 * 32 * 32,
+        max_pixels=16384 * 32 * 32,
+        use_custom_prompt=False,
+    ),
+    "Qwen3-VL-2B-Instruct-vllm": partial(
+        Qwen3VLChat,
+        model_path="Qwen/Qwen3-VL-2B-Instruct",
         use_custom_prompt=False,
         use_vllm=True,
-        temperature=0.7, 
+        temperature=0.7,
         max_new_tokens=16384,
         repetition_penalty=1.0,
         presence_penalty=1.5,
         top_p=0.8,
-        top_k=20
-
+        top_k=20,
+    ),
+    "Qwen3-VL-4B-Instruct-vllm": partial(
+        Qwen3VLChat,
+        model_path="Qwen/Qwen3-VL-4B-Instruct",
+        use_custom_prompt=False,
+        use_vllm=True,
+        temperature=0.7,
+        max_new_tokens=16384,
+        repetition_penalty=1.0,
+        presence_penalty=1.5,
+        top_p=0.8,
+        top_k=20,
+    ),
+    "Qwen3-VL-8B-Instruct-vllm": partial(
+        Qwen3VLChat,
+        model_path="Qwen/Qwen3-VL-8B-Instruct",
+        use_custom_prompt=False,
+        use_vllm=True,
+        temperature=0.7,
+        max_new_tokens=16384,
+        repetition_penalty=1.0,
+        presence_penalty=1.5,
+        top_p=0.8,
+        top_k=20,
+    ),
+    "Qwen3-VL-32B-Instruct-vllm": partial(
+        Qwen3VLChat,
+        model_path="Qwen/Qwen3-VL-32B-Instruct",
+        use_custom_prompt=False,
+        use_vllm=True,
+        temperature=0.7,
+        max_new_tokens=16384,
+        repetition_penalty=1.0,
+        presence_penalty=1.5,
+        top_p=0.8,
+        top_k=20,
     ),
     "Qwen3-VL-2B-Thinking": partial(
         Qwen3VLChat,
@@ -1479,22 +1506,37 @@ vila_series = {
     ),
     "VILA1.5-13b": partial(VILA, model_path="Efficient-Large-Model/VILA1.5-13b"),
     "VILA1.5-40b": partial(VILA, model_path="Efficient-Large-Model/VILA1.5-40b"),
-    "NVILA-8B": partial(NVILA, model_path="Efficient-Large-Model/NVILA-8B"),
-    "NVILA-15B": partial(NVILA, model_path="Efficient-Large-Model/NVILA-15B"),
-    "NVILA-Lite-2B": partial(NVILA, model_path="Efficient-Large-Model/NVILA-Lite-2B"),
+    "NVILA-8B": partial(NVILA_FAST, model_path="Efficient-Large-Model/NVILA-8B"),
+    "NVILA-15B": partial(NVILA_FAST, model_path="Efficient-Large-Model/NVILA-15B"),
+    "NVILA-Lite-2B": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/NVILA-Lite-2B"),
     # Data Scale Experiment Fine-tuned Models
-    "NVILA-Lite-2B-data-scale-exp-80k" : partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_80K-20251108_180221"),
-    "NVILA-Lite-2B-data-scale-exp-400k" : partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_400K-20251108_180221"),
-    "NVILA-Lite-2B-data-scale-exp-800k" : partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_800K-20251108_180221"),
+    "NVILA-Lite-2B-data-scale-exp-80k" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_80K-20251108_180221"),
+    "NVILA-Lite-2B-data-scale-exp-400k" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_400K-20251108_180221"),
+    "NVILA-Lite-2B-data-scale-exp-800k" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_800K-20251108_180221"),
+    "NVILA-Lite-2B-data-scale-exp-2m" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/DATA/NVILA-Lite-2B-DATA_SCALE_EXP_2M-20260205_003632"),
+    "NVILA-Lite-2B-data-scale-exp-80k-refspatial" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_16M-20260217_035008/checkpoint-1250"),
+    "NVILA-Lite-2B-data-scale-exp-400k-refspatial" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_16M-20260217_035008/checkpoint-6250"),
+    "NVILA-Lite-2B-data-scale-exp-800k-refspatial" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_16M-20260217_035008/checkpoint-12500"),
+    "NVILA-Lite-2B-data-scale-exp-2m-refspatial" : partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_16M-20260217_035008/checkpoint-31250"),
+    "NVILA-Lite-2B-data-scale-exp-4m-refspatial": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_16M-20260217_035008/checkpoint-62500"),
     # Single Dataset Fine-tuned Models
-    "NVILA-Lite-2B-single_prism_80k": partial(VILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_PRISM_80K-20251107_104236"),
-    "NVILA-Lite-2B-single_refspatial_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_80K-20251107_104236"),
-    "NVILA-Lite-2B-single_robospatial_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_ROBOSPATIAL_80K-20251107_104236"),
-    "NVILA-Lite-2B-single_sat_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SAT_80K-20251107_104236"),
-    "NVILA-Lite-2B-single_spar7m_80k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SPAR7M_80K-20251107_104236"),
-    "NVILA-Lite-2B-single_spatial457_23k": partial(NVILA, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SPATIAL457_23K-20251107_104236"),
-
-
+    "NVILA-Lite-2B-single_prism_80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_PRISM_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_refspatial_80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_REFSPATIAL_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_robospatial_80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_ROBOSPATIAL_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_sat_80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SAT_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_spar7m_80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SPAR7M_80K-20251107_104236"),
+    "NVILA-Lite-2B-single_spatial457_23k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SINGLE/NVILA-Lite-2B-SINGLE_SPATIAL457_23K-20251107_104236"),
+    # Synthetic data mix
+    "NVILA-Lite-2B-synthetic-mix-10pct-80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_10PCT_80K-20260224_234537"),
+    "NVILA-Lite-2B-synthetic-mix-20pct-80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_20PCT_80K-20260224_232347"),
+    "NVILA-Lite-2B-synthetic-mix-30pct-80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_30PCT_80K-20260224_232347"),
+    "NVILA-Lite-2B-synthetic-mix-5pct-80k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_5PCT_2M-20260226_023301/checkpoint-1250"),
+    "NVILA-Lite-2B-synthetic-mix-5pct-400k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_5PCT_2M-20260226_023301/checkpoint-6250"),
+    "NVILA-Lite-2B-synthetic-mix-5pct-730k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_5PCT_2M-20260226_023301/checkpoint-11400"),
+    "NVILA-Lite-2B-synthetic-mix-5pct-800k": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_5PCT_2M-20260226_023301/checkpoint-12500"),
+    "NVILA-Lite-2B-ST-80k-5pct": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_MCQ_5PCT_2M-20260302_030354/checkpoint-1250"),
+    "NVILA-Lite-2B-ST-400k-5pct": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_MCQ_5PCT_2M-20260302_030354/checkpoint-6250"),
+    "NVILA-Lite-2B-ST-800k-5pct": partial(NVILA_FAST, model_path="/data/shared/Qwen/mydisk/output/SYNTHETIC/NVILA-Lite-2B-SYNTHETIC_MIX_MCQ_5PCT_2M-20260302_030354/checkpoint-12500"),
 }
 
 ovis_series = {
@@ -1873,6 +1915,13 @@ qwen2vl_series = {
     "Qwen2.5-VL-3B-Instruct-single_spatial457_23k": partial(
         Qwen2VLChat,
         model_path="/data/shared/Qwen/mydisk/output/Qwen/Qwen2.5-VL-3B-Instruct-single_spatial457_23k-20251101_184310",
+        min_pixels=1280 * 28 * 28,
+        max_pixels=16384 * 28 * 28,
+        use_custom_prompt=False,
+    ),
+    "Qwen2.5-VL-3B-Instruct-single_sat_80k_bias_fixed": partial(
+        Qwen2VLChat,
+        model_path="/data/shared/Qwen/mydisk/output/Qwen/Qwen2.5-VL-3B-Instruct-single_sat_80k_bias_fixed-20260125_010430",
         min_pixels=1280 * 28 * 28,
         max_pixels=16384 * 28 * 28,
         use_custom_prompt=False,
@@ -2540,6 +2589,10 @@ molmo_series = {
     "molmo-7B-O-0924-single_sat": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_SAT_80k/unshared"),
     "molmo-7B-O-0924-single_spar": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_SPAR-7M_80k/unshared"),
     "molmo-7B-O-0924-single_spatial457": partial(molmo, model_path="/data/shared/Qwen/mydisk/output/SINGLE/single_Spatial457_23k/unshared"),
+
+    "molmo-7B-O-0924-single_sat_bias_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_SAT_80k_bias_fixed/unshared"),
+    "molmo-7B-O-0924-single_sat_bias_fixed_2": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/single_SAT_80k_bias_fixed_2/unshared"),    
+    
     "molmo-7B-O-0924-data_scale_exp_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_80k/unshared"),
     "molmo-7B-O-0924-data_scale_exp_80k_warmup_60": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_80k_warmup_60/unshared"),
     "molmo-7B-O-0924-data_scale_exp_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/data_scale_exp_400k/unshared"),
@@ -2551,6 +2604,8 @@ molmo_series = {
     "molmo-7B-O-0924-stage1_easy_in_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_easy_in_400k/unshared"),
     "molmo-7B-O-0924-stage1_easy_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_easy_in_80k_fixed/unshared"),
     "molmo-7B-O-0924-stage1_hard_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_hard_in_80k_fixed/unshared"),
+    "molmo-7B-O-0924-stage1_hard_in_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_hard_in_400k/unshared"),
+    "molmo-7B-O-0924-stage1_hard_in_134.4k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage1_hard_in_134.4k/unshared"),
 
     # Stage2
     "molmo-7B-O-0924-stage2_hard_in_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_in_80k/unshared"),
@@ -2558,11 +2613,18 @@ molmo_series = {
     "molmo-7B-O-0924-stage2_hard_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_in_80k_fixed/unshared"),
     "molmo-7B-O-0924-stage2_easy_in_80k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_easy_in_80k/unshared"),
     "molmo-7B-O-0924-stage2_easy_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_easy_in_80k_fixed/unshared"),
+    "molmo-7B-O-0924-stage2_easy_in_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_easy_in_400k/unshared"),
 
     # Stage2 with CoT data
     "molmo-7B-O-0924-stage2_hard_cot_in_80k_fixed": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_cot_in_80k_fixed/unshared"),
-    
-    
+    "molmo-7B-O-0924-stage2_hard_cot_in_400k": partial(molmo, model_path="/data/shared/Qwen/molmo/outputs/stage2_hard_cot_in_400k/unshared"),
+
+}
+
+molmo2_series = {
+    "molmo2-4B": partial(Molmo2Chat, model_path="allenai/Molmo2-4B"),
+    "molmo2-7B": partial(Molmo2Chat, model_path="allenai/Molmo2-7B"),
+    "molmo2-8B": partial(Molmo2Chat, model_path="allenai/Molmo2-8B"),
 }
 
 kosmos_series = {
@@ -2815,6 +2877,13 @@ robopoint_series = {
 
 roborefer_series = {
     "RoboRefer-2B-SFT": partial(RoboRefer, vlm_model_path="Zhoues/RoboRefer-2B-SFT"),
+    "RoboRefer-2B-SFT-depth": partial(
+        RoboRefer,
+        vlm_model_path="Zhoues/RoboRefer-2B-SFT",
+        depth_model_path="/data/shared/Qwen/RoboRefer/depth_anything_v2_vitl.pth",
+        depth_encoder="vitl",
+        enable_depth=True,
+    ),
     "RoboRefer-8B-SFT": partial(RoboRefer, vlm_model_path="Zhoues/RoboRefer-8B-SFT"),
 }
 
@@ -2837,9 +2906,11 @@ prismatic_series = {
     ),
 }
 
-spatialladder_series = {
-    "SpatialLadder-3B": partial(SpatialLadder, model_path="hongxingli/SpatialLadder-3B")
-}
+try:
+    spatialladder_series = {
+        "SpatialLadder-3B": partial(SpatialLadder, model_path="hongxingli/SpatialLadder-3B")
+    }
+except: pass
 
 supported_VLM = {}
 
@@ -2850,7 +2921,7 @@ model_groups = [
     janus_series, minicpm_series, cogvlm_series, wemm_series, cambrian_series, 
     chameleon_series, video_models, ovis_series, vila_series, mantis_series,
     mmalaya_series, phi3_series, phi4_series, xgen_mm_series, qwen2vl_series,qwen3vl_series,
-    slime_series, eagle_series, moondream_series, llama_series, molmo_series,
+    slime_series, eagle_series, moondream_series, llama_series, molmo_series, molmo2_series,
     kosmos_series, points_series, nvlm_series, vintern_series, h2ovl_series,
     aria_series, smolvlm_series, sail_series, valley_series, vita_series,
     ross_series, emu_series, ola_series, ursa_series, gemma_series,
@@ -2859,7 +2930,7 @@ model_groups = [
     xvl_series, thyme_series, logics_series, cosmos_series, keye_series, qianfanvl_series, 
     #lfm2vl_series, 
     rbdashmm_api_series_lmdeploy, interns1_series, insight_v_series,
-    robopoint_series, roborefer_series, prismatic_series, spatialladder_series
+    robopoint_series, roborefer_series, prismatic_series, # spatialladder_series
 ]
 
 for grp in model_groups:

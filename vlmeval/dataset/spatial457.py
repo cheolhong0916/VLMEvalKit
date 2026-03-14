@@ -6,7 +6,7 @@ from functools import partial
 import pandas as pd
 
 from .image_base import ImageBaseDataset
-from .utils import build_judge, DEBUG_MESSAGE, Spatial457_utils
+from .utils import build_judge, DEBUG_MESSAGE, Spatial457_utils, Spatial457_simple_utils
 from ..smp import *
 from ..utils import track_progress_rich
 
@@ -27,7 +27,8 @@ class Spatial457(ImageBaseDataset):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.dataset_utils = Spatial457_utils()
+        # self.dataset_utils = Spatial457_utils()
+        self.dataset_utils = Spatial457_simple_utils()
 
     def evaluate(self, eval_file, **judge_kwargs):
 
@@ -67,9 +68,18 @@ class Spatial457(ImageBaseDataset):
             objects = []
 
             # parse the answer
+            # Pattern 1: 'Answer': 'xxx'
             pred_try_1 = re.search(r"Answer': '(.*?)'", line["prediction"])
+            # Pattern 2: "Answer": "xxx"
             pred_try_2 = re.search(r'Answer": "(.*?)"', line["prediction"])
+            # Pattern 3: 'Answer': digit
             pred_try_3 = re.search(r"Answer': (\d)", line["prediction"])
+            # Pattern 4: The answer is 'xxx' or "xxx" (quoted)
+            pred_try_4 = re.search(r"[Tt]he answer is ['\"]([^'\"]+)['\"]", line["prediction"])
+            # Pattern 5: The answer is: xxx (with colon, up to period/comma/newline)
+            pred_try_5 = re.search(r"[Tt]he answer is:\s*([^.,\n]+)", line["prediction"])
+            # Pattern 6: The answer is xxx (plain, up to period/comma/newline/parenthesis)
+            pred_try_6 = re.search(r"[Tt]he answer is\s+([^.,\n()]+)", line["prediction"])
 
             if pred_try_1:
                 pred = pred_try_1.group(1)
@@ -77,6 +87,12 @@ class Spatial457(ImageBaseDataset):
                 pred = pred_try_2.group(1)
             elif pred_try_3:
                 pred = pred_try_3.group(1)
+            elif pred_try_4:
+                pred = pred_try_4.group(1).strip()
+            elif pred_try_5:
+                pred = pred_try_5.group(1).strip()
+            elif pred_try_6:
+                pred = pred_try_6.group(1).strip()
             else:
                 if self.ROBUST:
                     pred = line['prediction']
@@ -138,75 +154,177 @@ class Spatial457(ImageBaseDataset):
         dump(all_results, score_pth)
         return all_results
 
+    # def build_prompt(self, line):
+    #     msgs = super().build_prompt(line)
+
+    #     set_type = line["category"]
+
+    #     instruction_1, instruction_2 = self.build_subtask_instruction(set_type)
+
+    #     msgs.insert(0, {"type": "text", "value": instruction_1})
+    #     msgs.append({"type": "text", "value": instruction_2})
+
+    #     return msgs
+
+    # def build_subtask_instruction(self, level):
+
+    #     task_map = {
+    #         "L1_single": (
+    #             "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
+    #             "analyze the images, identify attributes of the objects, "
+    #             "and then determine the answer to the question.\n"
+    #         ),
+    #         "L2_objects": (
+    #             "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
+    #             "analyze the images, identify attributes of multiple objects, "
+    #             "and then determine the answer to the question.\n"
+    #         ),
+    #         "L3_2d_spatial": (
+    #             "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
+    #             "analyze the images, identify attributes of multiple objects and their spatial relationship from 2D "
+    #             "projected camera view, and then determine the answer to the question.\n"
+    #         ),
+    #         "L4_occ": (
+    #             "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
+    #             "analyze the images, identify attributes of multiple objects and their occlusion relationships, and "
+    #             "then determine the answer to the question.\n"
+    #         ),
+    #         "L4_pose": (
+    #             "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
+    #             "analyze the images, identify attributes of multiple objects and their facing direction in 3D space "
+    #             "from the camera view, and then determine the answer to the question.\n"
+    #         ),
+    #         "L5_6d_spatial": (
+    #             "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
+    #             "analyze the images, identify attributes of multiple objects and their spatial relationship from "
+    #             "objects’ perspective in 3D space, and then determine the answer to the question.\n"
+    #         ),
+    #         "L5_collision": (
+    #             "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
+    #             "analyze the images, identify attributes of multiple objects and their potential collision given the "
+    #             "assumption of moving direction in 3D space, and then determine the answer to the question.\n"
+    #         ),
+    #     }
+
+    #     instruction_1 = task_map.get(level, "")
+
+    #     instruction_2 = (
+    #         "First, you should identify the related objects refered in the questions, including their shape, "
+    #         "color, size; then add a brief reasoning process about the questions. Each object in the image has a "
+    #         "shape (e.g., 'airliner'), a size (only can be 'small' or 'large'), a color (e.g. 'blue'). The size of "
+    #         "the object is either 'small' or 'large'. The color of the object is one of the following: 'gray', "
+    #         "'blue', 'purple', 'brown', 'green', 'cyan', 'red', 'yellow'. The direction of the object is one of the "
+    #         "following: 'left', 'right', 'front', 'back'.\n\n"
+    #         "Second, give the answer based on the reasoning process. The answer should only be (1) a phrase chosen "
+    #         "from the following options: {}, or (2) an integer [0-10] when asked for 'How many' or 'What is the "
+    #         "number of', or (3) 'Yes' or 'No' when asked for 'Is there'. If you think there are no possible answers "
+    #         "or the question is not clear, choose the best answer that fits the question.\n\n"
+    #     ).format(self.dataset_utils.all_answers())
+
+    #     instruction_2 += (
+    #         "Write your response into this json template: " "{'Reasoning': '<your reasons>', 'Answer': '<Your answer>'}"
+    #     )
+
+    #     return instruction_1, instruction_2
+
+
+
+
     def build_prompt(self, line):
-        msgs = super().build_prompt(line)
+        # Get base prompt from ImageBaseDataset (skip Spatial457's build_prompt)
+        msgs = ImageBaseDataset.build_prompt(self, line)
 
         set_type = line["category"]
+        question = line.get("question", "")
 
-        instruction_1, instruction_2 = self.build_subtask_instruction(set_type)
+        instruction_1, instruction_2 = self.build_subtask_instruction(set_type, question)
 
         msgs.insert(0, {"type": "text", "value": instruction_1})
         msgs.append({"type": "text", "value": instruction_2})
 
         return msgs
 
-    def build_subtask_instruction(self, level):
+    def build_subtask_instruction(self, level, question=""):
+        """Build simplified instructions based on question type."""
 
+        # Simplified task descriptions
         task_map = {
-            "L1_single": (
-                "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
-                "analyze the images, identify attributes of the objects, "
-                "and then determine the answer to the question.\n"
-            ),
-            "L2_objects": (
-                "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
-                "analyze the images, identify attributes of multiple objects, "
-                "and then determine the answer to the question.\n"
-            ),
-            "L3_2d_spatial": (
-                "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
-                "analyze the images, identify attributes of multiple objects and their spatial relationship from 2D "
-                "projected camera view, and then determine the answer to the question.\n"
-            ),
-            "L4_occ": (
-                "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
-                "analyze the images, identify attributes of multiple objects and their occlusion relationships, and "
-                "then determine the answer to the question.\n"
-            ),
-            "L4_pose": (
-                "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
-                "analyze the images, identify attributes of multiple objects and their facing direction in 3D space "
-                "from the camera view, and then determine the answer to the question.\n"
-            ),
-            "L5_6d_spatial": (
-                "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
-                "analyze the images, identify attributes of multiple objects and their spatial relationship from "
-                "objects’ perspective in 3D space, and then determine the answer to the question.\n"
-            ),
-            "L5_collision": (
-                "You are an intelligent chatbot designed to answer questions based on an image. Your task is to "
-                "analyze the images, identify attributes of multiple objects and their potential collision given the "
-                "assumption of moving direction in 3D space, and then determine the answer to the question.\n"
-            ),
+            "L1_single": "Analyze the image and identify object attributes to answer the question.\n",
+            "L2_objects": "Analyze the image with multiple objects and answer the question.\n",
+            "L3_2d_spatial": "Analyze spatial relationships between objects in the image.\n",
+            "L4_occ": "Analyze occlusion relationships between objects.\n",
+            "L4_pose": "Analyze object orientations and facing directions.\n",
+            "L5_6d_spatial": "Analyze 3D spatial relationships between objects.\n",
+            "L5_collision": "Analyze potential collisions between objects.\n",
         }
 
         instruction_1 = task_map.get(level, "")
 
-        instruction_2 = (
-            "First, you should identify the related objects refered in the questions, including their shape, "
-            "color, size; then add a brief reasoning process about the questions. Each object in the image has a "
-            "shape (e.g., 'airliner'), a size (only can be 'small' or 'large'), a color (e.g. 'blue'). The size of "
-            "the object is either 'small' or 'large'. The color of the object is one of the following: 'gray', "
-            "'blue', 'purple', 'brown', 'green', 'cyan', 'red', 'yellow'. The direction of the object is one of the "
-            "following: 'left', 'right', 'front', 'back'.\n\n"
-            "Second, give the answer based on the reasoning process. The answer should only be (1) a phrase chosen "
-            "from the following options: {}, or (2) an integer [0-10] when asked for 'How many' or 'What is the "
-            "number of', or (3) 'Yes' or 'No' when asked for 'Is there'. If you think there are no possible answers "
-            "or the question is not clear, choose the best answer that fits the question.\n\n"
-        ).format(self.dataset_utils.all_answers())
+        # Detect question type and get relevant options
+        q_type = self.dataset_utils.detect_question_type(question)
+        answer_hint = self.dataset_utils.get_answer_hint(q_type)
 
-        instruction_2 += (
-            "Write your response into this json template: " "{'Reasoning': '<your reasons>', 'Answer': '<Your answer>'}"
+        instruction_2 = (
+            f"{answer_hint}\n\n"
+            "Write your response into this json template: "
+            "{'Reasoning': '<your reasons>', 'Answer': '<Your answer>'}"
+        )
+
+        return instruction_1, instruction_2
+    
+
+
+
+
+
+class Spatial457_simple_instruction(Spatial457):
+    """
+    Simplified instruction version of Spatial457.
+    Only includes relevant answer options based on question type.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dataset_utils = Spatial457_simple_utils()
+
+    def build_prompt(self, line):
+        # Get base prompt from ImageBaseDataset (skip Spatial457's build_prompt)
+        msgs = ImageBaseDataset.build_prompt(self, line)
+
+        set_type = line["category"]
+        question = line.get("question", "")
+
+        instruction_1, instruction_2 = self.build_subtask_instruction(set_type, question)
+
+        msgs.insert(0, {"type": "text", "value": instruction_1})
+        msgs.append({"type": "text", "value": instruction_2})
+
+        return msgs
+
+    def build_subtask_instruction(self, level, question=""):
+        """Build simplified instructions based on question type."""
+
+        # Simplified task descriptions
+        task_map = {
+            "L1_single": "Analyze the image and identify object attributes to answer the question.\n",
+            "L2_objects": "Analyze the image with multiple objects and answer the question.\n",
+            "L3_2d_spatial": "Analyze spatial relationships between objects in the image.\n",
+            "L4_occ": "Analyze occlusion relationships between objects.\n",
+            "L4_pose": "Analyze object orientations and facing directions.\n",
+            "L5_6d_spatial": "Analyze 3D spatial relationships between objects.\n",
+            "L5_collision": "Analyze potential collisions between objects.\n",
+        }
+
+        instruction_1 = task_map.get(level, "")
+
+        # Detect question type and get relevant options
+        q_type = self.dataset_utils.detect_question_type(question)
+        answer_hint = self.dataset_utils.get_answer_hint(q_type)
+
+        instruction_2 = (
+            f"{answer_hint}\n\n"
+            "Write your response into this json template: "
+            "{'Reasoning': '<your reasons>', 'Answer': '<Your answer>'}"
         )
 
         return instruction_1, instruction_2

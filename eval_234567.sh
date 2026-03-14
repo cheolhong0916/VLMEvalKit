@@ -17,10 +17,10 @@
 # DATASET="ERQA"
 # DATASET="EmbSpatialBench"
 # DATASET="BLINK"
-# DATASET="CV-Bench-2D"
+DATASET="CV-Bench-2D"
 # DATASET="CV-Bench-3D"
 # DATASET="RoboSpatial"
-DATASET="Spatial457"
+# DATASET="Spatial457"
 
 # An array of model names to evaluate.
 # These must match the keys in your VLMEvalKit config file.
@@ -161,20 +161,35 @@ DATASET="Spatial457"
 #     "prism-dinosiglip+7b-data-scale-exp-800k"
 # )
 
-MODELS=(
-    "molmo-7B-O-0924"
-    "molmo-7B-O-0924-single_prism"
-    "molmo-7B-O-0924-single_refspatial"
-    "molmo-7B-O-0924-single_robospatial"
-    "molmo-7B-O-0924-single_sat"
-    "molmo-7B-O-0924-single_spar"
-    "molmo-7B-O-0924-single_spatial457"
-    "molmo-7B-O-0924-data_scale_exp_80k"
-    "molmo-7B-O-0924-data_scale_exp_400k"
-    "molmo-7B-O-0924-data_scale_exp_800k"
-    "molmo-7B-O-0924-data_scale_exp_2m"
-)
+# MODELS=(
+#     "molmo-7B-O-0924"
+#     "molmo-7B-O-0924-single_prism"
+#     "molmo-7B-O-0924-single_refspatial"
+#     "molmo-7B-O-0924-single_robospatial"
+#     "molmo-7B-O-0924-single_sat"
+#     "molmo-7B-O-0924-single_spar"
+#     "molmo-7B-O-0924-single_spatial457"
+#     "molmo-7B-O-0924-data_scale_exp_80k"
+#     "molmo-7B-O-0924-data_scale_exp_400k"
+#     "molmo-7B-O-0924-data_scale_exp_800k"
+#     "molmo-7B-O-0924-data_scale_exp_2m"
+# )
 
+# MODELS=(
+#     "molmo-7B-O-0924-stage2_hard_cot_in_400k"
+# )
+MODELS=(
+    # "NVILA-Lite-2B"
+    "NVILA-Lite-2B-data-scale-exp-80k"
+    "NVILA-Lite-2B-data-scale-exp-400k"
+    "NVILA-Lite-2B-data-scale-exp-800k"
+    "NVILA-Lite-2B-single_prism_80k"
+    "NVILA-Lite-2B-single_refspatial_80k"
+    "NVILA-Lite-2B-single_robospatial_80k"
+    "NVILA-Lite-2B-single_sat_80k"
+    "NVILA-Lite-2B-single_spar7m_80k"
+    # "NVILA-Lite-2B-single_spatial457_23k"
+)
 # --- Execution ---
 
 echo "Starting sequential evaluation for ${#MODELS[@]} models on dataset: ${DATASET}"

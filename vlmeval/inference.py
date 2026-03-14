@@ -144,6 +144,10 @@ def infer_data(model, model_name, work_dir, dataset, out_file, verbose=False, ap
     else:
         model.set_dump_image(dataset.dump_image)
 
+    # Set work_dir for models that support raw output logging (e.g., NVILA)
+    if hasattr(model, 'set_work_dir'):
+        model.set_work_dir(work_dir, dataset_name)
+
     for i in tqdm(range(lt), desc=f'Infer {model_name}/{dataset_name}, Rank {rank}/{world_size}'):
         idx = data.iloc[i]['index']
         if idx in res:

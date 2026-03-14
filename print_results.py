@@ -76,6 +76,26 @@ acc_csv_path = base_filename + '_acc.csv'
 acc_by_relation_csv_path = base_filename + '_acc_by_relation.csv'
 xlsx_path = base_filename + '.xlsx'
 
+# --- EmbSpatialBench Special Fallback Logic ---
+# If specific score files are not found in the dated folder, fallback to checking root directory
+if 'EmbSpatialBench' in args.data:
+    if not (os.path.exists(json_path) or os.path.exists(acc_csv_path)):
+        print(f"WARNING: EmbSpatialBench files not found in dated folder. Checking root: {base_path}")
+        root_base_filename = os.path.join(base_path, args.model + '_' + args.data)
+        
+        # Check if root files exist
+        if os.path.exists(root_base_filename + '_score.json') or \
+           os.path.exists(root_base_filename + '_acc.csv'):
+            print(f"Found EmbSpatialBench files in root directory.")
+            base_filename = root_base_filename
+            json_path = base_filename + '_score.json'
+            acc_csv_path = base_filename + '_acc.csv'
+            acc_by_relation_csv_path = base_filename + '_acc_by_relation.csv'
+            xlsx_path = base_filename + '.xlsx'
+            # Add root to search dirs if not already there
+            if base_path not in search_dirs:
+                search_dirs.append(base_path)
+
 # --- Flexible File Search Logic ---
 cvbench_result_path = None
 found_files = []
@@ -117,28 +137,6 @@ def extract_answer_xlsx(pred):
         if len(pred.strip()) == 1: return pred.strip()
     if isinstance(pred, dict) and 'Answer' in pred: return pred['Answer']
     return None
-
-# Function to evaluate ERQA from xlsx
-# def evaluate_erqa_xlsx(xlsx_path):
-#     print(f"Reading file from: {xlsx_path}")
-#     df = pd.read_excel(xlsx_path)
-    
-#     pred_col = next((c for c in df.columns if 'prediction' in c.lower() or c.lower() == 'pred'), None)
-#     answer_col = next((c for c in df.columns if c.lower() in ['answer', 'gt', 'ground_truth', 'label']), None)
-    
-#     if not pred_col or not answer_col:
-#         print("ERROR: Prediction or Answer column not found")
-#         exit()
-    
-#     df['extracted_answer'] = df[pred_col].apply(extract_answer_xlsx)
-#     valid_mask = ~df[answer_col].isna()
-#     correct = (df.loc[valid_mask, 'extracted_answer'].astype(str).str.strip().str.upper() == 
-#                df.loc[valid_mask, answer_col].astype(str).str.strip().str.upper()).sum()
-#     total = valid_mask.sum()
-#     overall_acc = (correct / total) if total > 0 else 0
-    
-#     results = {'Correct': correct, 'Total': total, 'Accuracy': overall_acc}
-#     return results
 
 def evaluate_erqa_xlsx(xlsx_path):
     """Evaluate ERQA benchmark from xlsx file"""

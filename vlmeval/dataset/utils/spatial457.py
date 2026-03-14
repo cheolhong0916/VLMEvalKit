@@ -167,3 +167,106 @@ class Spatial457_utils:
             return True
 
         return False
+
+
+class Spatial457_simple_utils(Spatial457_utils):
+    """Extended utils with question type detection for simplified instructions."""
+
+    def __init__(self):
+        super().__init__()
+
+        self.size_options = ["Small", "Large"]
+        self.shape_options = [
+            "Airliner", "Dirtbike", "Road bike", "Tandem bike", "Suv", "Wagon",
+            "Scooter", "Mountain bike", "Minivan", "Sedan", "School bus", "Fighter",
+            "Chopper", "Double bus", "Truck", "Articulated bus", "Cruiser", "Jet",
+            "Utility bike", "Regular bus", "Biplane"
+        ]
+        self.color_options = ["Gray", "Blue", "Purple", "Brown", "Green", "Cyan", "Red", "Yellow"]
+        self.direction_options = ["Left", "Right", "Front", "Back"]
+
+    def detect_question_type(self, question):
+        """
+        Detect the expected answer type from question.
+        Returns: 'color', 'shape', 'size', 'direction', 'count', 'yesno'
+        """
+        q_lower = question.lower()
+
+        # Count questions
+        if "how many" in q_lower or "what is the number of" in q_lower:
+            return "count"
+
+        # Yes/No questions
+        yesno_patterns = [
+            "is there", "are there", "does the", "do the",
+            "is its shape the same", "is its color the same",
+            "is it the same", "are there fewer", "are there more",
+            "is the same shape", "is the same color", "have the same"
+        ]
+        for pattern in yesno_patterns:
+            if pattern in q_lower:
+                return "yesno"
+
+        # Color questions
+        color_patterns = ["what color", "has what color", "is what color", "what is the color"]
+        for pattern in color_patterns:
+            if pattern in q_lower:
+                return "color"
+
+        # Shape questions
+        shape_patterns = ["what shape", "is what shape", "shape is it", "what is the shape"]
+        for pattern in shape_patterns:
+            if pattern in q_lower:
+                return "shape"
+
+        # Size questions
+        size_patterns = ["what size", "is what size", "how big", "what is the size"]
+        for pattern in size_patterns:
+            if pattern in q_lower:
+                return "size"
+
+        # Direction questions
+        direction_patterns = [
+            "which direction", "what direction", "facing", "which way",
+            "is facing", "faces"
+        ]
+        for pattern in direction_patterns:
+            if pattern in q_lower:
+                return "direction"
+
+        # Default: try to infer from question ending
+        if q_lower.rstrip("?").endswith("color"):
+            return "color"
+        if q_lower.rstrip("?").endswith("shape"):
+            return "shape"
+
+        return "generic"
+
+    def get_answer_hint(self, q_type):
+        """Return appropriate answer hint based on question type."""
+
+        if q_type == "count":
+            return "Answer with an integer (0-10)."
+
+        if q_type == "yesno":
+            return "Answer with Yes or No."
+
+        if q_type == "color":
+            return f"Answer with one of: {', '.join(self.color_options)}."
+
+        if q_type == "shape":
+            return f"Answer with one of: {', '.join(self.shape_options)}."
+
+        if q_type == "size":
+            return f"Answer with one of: {', '.join(self.size_options)}."
+
+        if q_type == "direction":
+            return f"Answer with one of: {', '.join(self.direction_options)}."
+
+        # Generic fallback (still shorter than original)
+        return (
+            f"Answer with: a color ({', '.join(self.color_options)}), "
+            f"a shape (e.g., Sedan, Fighter, Scooter), "
+            f"a size (Small/Large), a direction (Left/Right/Front/Back), "
+            f"an integer (0-10), or Yes/No."
+        )

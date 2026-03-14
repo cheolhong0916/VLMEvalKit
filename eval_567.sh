@@ -161,18 +161,38 @@ DATASET="Spatial457"
 #     "prism-dinosiglip+7b-data-scale-exp-800k"
 # )
 
+# MODELS=(
+#     # "molmo-7B-O-0924"
+#     # "molmo-7B-O-0924-single_prism"
+#     # "molmo-7B-O-0924-single_refspatial"
+#     # "molmo-7B-O-0924-single_robospatial"
+#     # "molmo-7B-O-0924-single_sat"
+#     # "molmo-7B-O-0924-single_spar"
+#     "molmo-7B-O-0924-single_spatial457"
+#     "molmo-7B-O-0924-data_scale_exp_80k"
+#     "molmo-7B-O-0924-data_scale_exp_400k"
+#     "molmo-7B-O-0924-data_scale_exp_800k"
+#     "molmo-7B-O-0924-data_scale_exp_2m"
+# )
+
 MODELS=(
-    # "molmo-7B-O-0924"
-    # "molmo-7B-O-0924-single_prism"
-    # "molmo-7B-O-0924-single_refspatial"
-    # "molmo-7B-O-0924-single_robospatial"
-    # "molmo-7B-O-0924-single_sat"
-    # "molmo-7B-O-0924-single_spar"
-    "molmo-7B-O-0924-single_spatial457"
-    "molmo-7B-O-0924-data_scale_exp_80k"
-    "molmo-7B-O-0924-data_scale_exp_400k"
-    "molmo-7B-O-0924-data_scale_exp_800k"
-    "molmo-7B-O-0924-data_scale_exp_2m"
+    "molmo-7B-O-0924-stage1_easy_in_80k"
+    "molmo-7B-O-0924-stage1_easy_in_80k_fixed"
+    "molmo-7B-O-0924-stage1_easy_in_400k"
+    "molmo-7B-O-0924-stage1_hard_in_80k_fixed"
+    "molmo-7B-O-0924-stage1_hard_in_134.4k"
+    "molmo-7B-O-0924-stage1_hard_in_400k"
+
+    "molmo-7B-O-0924-stage2_easy_in_80k"
+    "molmo-7B-O-0924-stage2_easy_in_80k_fixed"
+    "molmo-7B-O-0924-stage2_easy_in_400k"
+    "molmo-7B-O-0924-stage2_hard_in_80k"
+    "molmo-7B-O-0924-stage2_hard_in_80k_fixed"
+    "molmo-7B-O-0924-stage2_hard_in_400k"
+    
+    "molmo-7B-O-0924-stage2_hard_cot_in_80k_fixed"
+    "molmo-7B-O-0924-stage2_hard_cot_in_400k"
+
 )
 
 # --- Execution ---

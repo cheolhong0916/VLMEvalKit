@@ -58,7 +58,10 @@ class molmo(BaseModel):
             model_path = os.path.dirname(model_path)
             
         self.model_path = model_path
-        self.max_crops = kwargs.get('max_crops', 36)
+        # 72B uses device_map="auto" across 8 GPUs, leaving ~500MB free per GPU after model weights.
+        # max_crops=36 (~860MB/head) OOMs; max_crops=12 (~95MB/head) fits safely within the limit.
+        default_max_crops = 12 if '72b' in model_path.lower() else 36
+        self.max_crops = kwargs.get('max_crops', default_max_crops)
         self.kwargs = kwargs
 
         # Check for Native/Fine-tuned Checkpoint (config.yaml + model.pt)
@@ -315,6 +318,12 @@ class molmo(BaseModel):
 
             # move inputs to the correct device and make a batch of size 1
             inputs = {k: v.to(self.model.device).unsqueeze(0) for k, v in inputs.items()}
+
+            # 72B uses device_map="auto" across multiple GPUs.
+            # autocast alone doesn't guarantee float32→bfloat16 conversion for patch_embedding in this case,
+            # so cast explicitly.
+            if '72b' in self.model_name.lower():
+                inputs = {k: v.to(dtype=torch.bfloat16) if v.is_floating_point() else v for k, v in inputs.items()}
 
             # generate output; maximum 200 new tokens; stop generation when <|endoftext|> is generated
             with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
